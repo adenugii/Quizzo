@@ -10,7 +10,8 @@ export async function signup({
   username: string;
   password: string;
 }) {
-  const res = await fetch(`${API_BASE_URL}/signup`, {
+  // call internal API route (same-origin) to avoid CORS
+  const res = await fetch(`/api/auth/signup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -33,7 +34,8 @@ export async function signin({
   email: string;
   password: string;
 }) {
-  const res = await fetch(`${API_BASE_URL}/signin`, {
+  // call internal API route (same-origin) to avoid CORS
+  const res = await fetch(`/api/auth/signin`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
