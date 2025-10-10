@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.API_BASE_URL || "http://101.32.242.72:3000";
+const API_BASE_URL = process.env.API_BASE_URL || "https://api.gilanghuda.my.id";
 
 export async function uploadQuiz({ file, num_questions, difficulty, description, token, time_limit }: {
   file: File;
@@ -73,6 +73,17 @@ export async function attemptQuiz(token: string, quizId: string, answers: Record
   if (!res.ok) throw new Error("Gagal submit jawaban quiz");
   return res.json();
 }
+
+interface QuizAttempt {
+  id: string;
+  quiz_id: string;
+  user_id: string;
+  score: number;
+  total_questions: number;
+  submitted_at: string;
+  is_completed: boolean;
+}
+
 export async function getQuizAttempts(token: string, quizId?: string) {
   // Jika ada quizId, filter di frontend
   const url = `${API_BASE_URL}/quiz/attempts`;
@@ -85,7 +96,7 @@ export async function getQuizAttempts(token: string, quizId?: string) {
   if (!res.ok) throw new Error("Gagal mengambil hasil quiz");
   const data = await res.json();
   if (quizId && data.attempts) {
-    return { ...data, attempts: data.attempts.filter((a: any) => a.quiz_id === quizId) };
+    return { ...data, attempts: data.attempts.filter((a: QuizAttempt) => a.quiz_id === quizId) };
   }
   return data;
 }

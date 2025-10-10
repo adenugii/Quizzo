@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.API_BASE_URL || "http://101.32.242.72:3000";
+const API_BASE_URL = process.env.API_BASE_URL || "https://api.gilanghuda.my.id";
 import Cookies from "js-cookie";
 
 export async function signup({

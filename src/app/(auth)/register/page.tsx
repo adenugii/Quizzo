@@ -5,6 +5,12 @@ import RegisterAuthLayout from "@/components/auth/RegisterAuthLayout";
 import { signup, signin } from "@/services/authservices";
 import Cookies from "js-cookie";
 
+interface RegisterForm {
+  email: string;
+  password: string;
+  username: string;
+}
+
 export default function RegisterPage() {
   const router = useRouter();
   const [success, setSuccess] = useState(false);
@@ -15,10 +21,7 @@ export default function RegisterPage() {
     password,
     setError,
     setLoading,
-  }: {
-    email: string;
-    username: string;
-    password: string;
+  }: RegisterForm & {
     setError: (msg: string | null) => void;
     setLoading: (v: boolean) => void;
   }) => {
@@ -40,8 +43,8 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push("/rekomendasi-akun");
       }, 1200);
-    } catch (err: any) {
-      setError(err.message || "Gagal mendaftar");
+    } catch (err) {
+      setError((err as Error).message || "Gagal mendaftar");
     } finally {
       setLoading(false);
     }

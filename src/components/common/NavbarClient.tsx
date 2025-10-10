@@ -8,19 +8,24 @@ import { useState } from "react";
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "Buat Quiz", href: "/quiz-maker" },
-  { name: "Studi grup", href: "/study-groups" },
+  { name: "Studi grup", href: "/study-group" },
   { name: "Tentang", href: "/about-us" },
   { name: "History Quiz", href: "/history" },
 ];
 
-export default function NavbarClient({ user }: { user: any }) {
+export interface NavbarUser {
+  avatar?: string;
+  username?: string;
+}
+
+export default function NavbarClient({ user }: { user: NavbarUser | null }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
 
   const protectedLinks = ["/quiz-maker", "/history", "/study-groups"];
 
-  const handleProtectedNav = (e: any, href: string) => {
+  const handleProtectedNav = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, href: string) => {
     if (!user && protectedLinks.includes(href)) {
       e.preventDefault();
       setShowLoginPopup(true);

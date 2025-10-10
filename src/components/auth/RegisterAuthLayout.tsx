@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { signup, signin } from "@/services/authservices";
+import { signup } from "@/services/authservices";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const slides = [
 	{
@@ -94,8 +94,8 @@ export default function RegisterAuthLayout({ onRegister }: {
 		try {
 			await signup({ email, username, password });
 			router.push("/rekomendasi-akun");
-		} catch (err: any) {
-			setError(err.message || "Gagal mendaftar.");
+		} catch (err) {
+			setError((err as Error).message || "Gagal mendaftar.");
 		} finally {
 			setLoading(false);
 		}
@@ -229,9 +229,9 @@ export default function RegisterAuthLayout({ onRegister }: {
 					</form>
 					<div className="text-xs text-gray-500 mt-6 text-center">
 						Sudah punya akun?{" "}
-						<a href="/login" className="text-[#2563eb] hover:underline">
+						<Link href="/login" className="text-[#2563eb] hover:underline">
 							Masuk di sini
-						</a>
+						</Link>
 					</div>
 				</div>
 			</div>

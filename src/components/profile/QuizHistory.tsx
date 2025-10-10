@@ -3,36 +3,54 @@ import { useEffect, useState } from "react";
 import { getQuizAttempts, getQuizById } from "@/services/quizservices";
 import { FaCalculator } from "react-icons/fa6";
 
+interface QuizAttempt {
+  id: string;
+  quiz_id: string;
+  user_id: string;
+  score: number;
+  total_questions: number;
+  submitted_at: string;
+  is_completed: boolean;
+}
+
+interface QuizMeta {
+  [quizId: string]: {
+    title?: string;
+    difficulty?: string;
+  };
+}
+
 export default function QuizHistory({ token }: { token?: string })  {
-  const [attempts, setAttempts] = useState<any[]>([]);
-  const [quizMeta, setQuizMeta] = useState<Record<string, any>>({});
+  const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
+  const [quizMeta, setQuizMeta] = useState<QuizMeta>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchHistory() {
       setLoading(true);
-      // Gunakan token dari props jika ada, jangan ambil dari localStorage
-      let res: any = {};
+      const tokenStr = token || "";
+      let res: { attempts?: QuizAttempt[] } = {};
       try {
-        res = await getQuizAttempts(token || "");
+        res = await getQuizAttempts(tokenStr);
       } catch {
         res = { attempts: [] };
       }
       // Filter hanya attempt dengan skor tertinggi untuk setiap quiz_id
-      const bestAttempts: Record<string, any> = {};
-      (res.attempts || []).forEach((a: any) => {
+      const bestAttempts: Record<string, QuizAttempt> = {};
+      (res.attempts || []).forEach((a: QuizAttempt) => {
         if (!bestAttempts[a.quiz_id] || a.score > bestAttempts[a.quiz_id].score) {
           bestAttempts[a.quiz_id] = a;
         }
       });
       // Ambil 3 attempt terbaru dari bestAttempts
-      const sorted = Object.values(bestAttempts).sort((a: any, b: any) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime());
+      const sorted = Object.values(bestAttempts).sort((a: QuizAttempt, b: QuizAttempt) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime());
       setAttempts(sorted.slice(0, 3));
       // Fetch meta quiz
-      const meta: Record<string, any> = {};
-      await Promise.all(sorted.slice(0, 3).map(async (a: any) => {
-        const quiz = await getQuizById(token || "", a.quiz_id);
-        if (quiz) meta[a.quiz_id] = quiz;
+      const meta: QuizMeta = {};
+      await Promise.all(sorted.slice(0, 3).map(async (a: QuizAttempt) => {
+        if (!a.quiz_id || typeof a.quiz_id !== 'string') return;
+        const quiz = await getQuizById(tokenStr, a.quiz_id);
+        if (quiz) meta[a.quiz_id] = { title: quiz.title, difficulty: quiz.difficulty };
       }));
       setQuizMeta(meta);
       setLoading(false);
@@ -50,7 +68,7 @@ export default function QuizHistory({ token }: { token?: string })  {
           <div className="text-gray-400">Loading...</div>
         ) : attempts.length === 0 ? (
           <div className="text-gray-400">Belum ada riwayat quiz.</div>
-        ) : attempts.map((a, i) => {
+        ) : attempts.map((a) => {
           const meta = quizMeta[a.quiz_id] || {};
           const percent = a.total_questions > 0 ? (a.score / a.total_questions) * 100 : 0;
           const lulus = percent >= 50;

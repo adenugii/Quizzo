@@ -62,8 +62,8 @@ export default function UploadFormSection({ token }: { token: string }) {
         
       });
       setSuccess(true);
-    } catch (err: any) {
-      setLocalError(err.message || "Gagal upload quiz");
+    } catch (err: unknown) {
+      setLocalError((err as Error).message || "Gagal upload quiz");
     } finally {
       setLoading(false);
       if (success) {

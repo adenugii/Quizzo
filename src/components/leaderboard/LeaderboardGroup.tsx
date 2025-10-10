@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { FaMedal, FaCode, FaBookOpen, FaLeaf, FaFire, FaTrophy } from "react-icons/fa";
+import { FaMedal, FaTrophy } from "react-icons/fa";
 
 interface Group {
   name: string;
@@ -11,6 +11,8 @@ interface Group {
   xp: number;
   trend: number;
   isYou?: boolean;
+  member_count?: number;
+  total_score?: number;
 }
 
 interface LeaderboardGroupProps {
@@ -18,14 +20,6 @@ interface LeaderboardGroupProps {
   page: number;
   setPage: (page: number) => void;
 }
-
-const groupIcon: Record<string, React.ReactElement> = {
-  yellow: <FaMedal className="text-yellow-400" />,
-  blue: <FaCode className="text-blue-500" />,
-  purple: <FaBookOpen className="text-purple-500" />,
-  green: <FaLeaf className="text-green-500" />,
-  red: <FaFire className="text-red-500" />,
-};
 
 export default function LeaderboardGroup({ groups, page, setPage }: LeaderboardGroupProps) {
   return (
@@ -40,9 +34,9 @@ export default function LeaderboardGroup({ groups, page, setPage }: LeaderboardG
         Global Leaderboard <span className="font-normal text-gray-400 text-sm">(Top 50 Group)</span>
       </div>
       <div className="flex flex-col gap-2">
-        {groups.map((group: any, idx: number) => (
+        {groups.map((group, idx) => (
           <div
-            key={(group.group_id || group.name) + idx}
+            key={group.name + idx}
             className={`flex items-center gap-4 px-4 py-3 rounded-lg border transition ${
               idx === 0
                 ? "bg-yellow-50 border-yellow-200"

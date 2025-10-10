@@ -44,8 +44,21 @@ export default function QuizResultPage() {
 
         {/* Daftar Quiz */}
         <div className="grid md:grid-cols-3 gap-6 mb-10">
-          {(quizList as QuizCardProps[]).map((quiz, idx) => (
-            <QuizCard key={quiz.title + idx} {...quiz} options={quiz.options ?? []} />
+          {quizList.map((quiz, idx) => (
+            <QuizCard
+              key={quiz.title + idx}
+              title={quiz.title}
+              subtitle={quiz.subtitle}
+              level={quiz.level as "Mudah" | "Sedang" | "Sulit"}
+              levelColor={quiz.levelColor as "green" | "yellow" | "red"}
+              questions={quiz.questions}
+              time={quiz.time}
+              status={quiz.status as "progress" | "done" | "not_started"}
+              question={"-"}
+              options={[]}
+              selected={-1}
+              setSelected={() => {}}
+            />
           ))}
         </div>
 

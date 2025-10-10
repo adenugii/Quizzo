@@ -2,6 +2,17 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+interface QuizDetail {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: string;
+  time_limit?: { String: string; Valid: boolean };
+  created_by: string;
+  questions: { id: string; quiz_id: string; question_text: string; options: { id: string; content: string }[] }[];
+  created_at: string;
+}
+
 function formatDate(dateStr: string) {
   if (!dateStr) return "-";
   const date = new Date(dateStr);
@@ -20,7 +31,7 @@ function getDifficultyLabel(difficulty: string) {
   return { text: difficulty, color: "bg-gray-100 text-gray-600" };
 }
 
-export default function QuizDetailSection({ quiz }: { quiz: any }) {
+export default function QuizDetailSection({ quiz }: { quiz: QuizDetail }) {
   const router = useRouter();
   useEffect(() => {
     if (!quiz) {
@@ -51,7 +62,7 @@ export default function QuizDetailSection({ quiz }: { quiz: any }) {
       <div className="grid grid-cols-3 gap-4 mb-4">
         <div className="bg-[#f8fafc] rounded-lg p-3 flex flex-col items-center">
           <div className="text-xs text-gray-500 mb-1">Jumlah Soal</div>
-          <div className="font-bold text-lg text-[#2563eb]">{quiz.total_questions || (quiz.questions ? quiz.questions.length : 0)} Soal</div>
+          <div className="font-bold text-lg text-[#2563eb]">{quiz.questions ? quiz.questions.length : 0} Soal</div>
         </div>
         <div className="bg-[#f8fafc] rounded-lg p-3 flex flex-col items-center">
           <div className="text-xs text-gray-500 mb-1">Estimasi Waktu</div>

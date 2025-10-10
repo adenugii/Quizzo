@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { FaStar, FaLightbulb } from "react-icons/fa";
 import Image from "next/image";
+import Link from "next/link";
 
 const slides = [
 	{
@@ -178,9 +178,9 @@ export default function LoginAuthLayout({ onLogin }: LoginAuthLayoutProps) {
 					</form>
 					<div className="text-xs text-gray-500 mt-6 text-center">
 						Belum punya akun?{" "}
-						<a href="/register" className="text-[#2563eb] hover:underline">
+						<Link href="/register" className="text-[#2563eb] hover:underline">
 							Daftar di sini
-						</a>
+						</Link>
 					</div>
 				</div>
 			</div>

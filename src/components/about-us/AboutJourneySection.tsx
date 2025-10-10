@@ -43,7 +43,7 @@ export default function AboutJourneySection() {
 			const visible = Math.max(0, windowHeight - rect.top);
 			const total = rect.height;
 			// Animate bar height (min 0, max 100%)
-			const percent = Math.min(1, Math.max(0, visible / total));
+			const percent = Math.round((visible / total) * 100);
 			setBarHeight(percent);
 
 			// Animate steps one by one as user scrolls

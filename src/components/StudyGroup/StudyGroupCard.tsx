@@ -39,7 +39,6 @@ export default function StudyGroupCard({
     english: <PiBookOpenTextFill className="text-[#2563eb] text-lg" />,
   };
 
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const handleJoin = async () => {

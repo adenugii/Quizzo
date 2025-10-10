@@ -1,13 +1,29 @@
 import Navbar from "@/components/common/Navbar";
-import PerformanceOverviewSection from "@/components/history/PerformanceOverviewSection";
 import { cookies } from "next/headers";
 import { getQuizAttempts, getQuizById } from "@/services/quizservices";
+
+interface QuizAttempt {
+  id: string;
+  quiz_id: string;
+  user_id: string;
+  score: number;
+  total_questions: number;
+  submitted_at: string;
+  is_completed: boolean;
+}
+
+interface QuizMeta {
+  [quizId: string]: {
+    title?: string;
+    difficulty?: string;
+  };
+}
 
 async function QuizHistorySection() {
   const cookieStore = cookies();
   const token = (await cookieStore).get("token")?.value || "";
-  let attempts: any[] = [];
-  let quizMeta: Record<string, any> = {};
+  let attempts: QuizAttempt[] = [];
+  const quizMeta: QuizMeta = {};
   try {
     const res = await getQuizAttempts(token);
     attempts = res.attempts || [];
@@ -28,15 +44,15 @@ async function QuizHistorySection() {
         )}
         {(() => {
           // Filter hanya attempt dengan skor tertinggi untuk setiap quiz_id
-          const bestAttempts: Record<string, any> = {};
-          attempts.forEach((a) => {
+          const bestAttempts: Record<string, QuizAttempt> = {};
+          (attempts || []).forEach((a: QuizAttempt) => {
             if (!bestAttempts[a.quiz_id] || a.score > bestAttempts[a.quiz_id].score) {
               bestAttempts[a.quiz_id] = a;
             }
           });
           // Ambil 3 attempt terbaru dari bestAttempts
-          const sorted = Object.values(bestAttempts).sort((a: any, b: any) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime());
-          return sorted.slice(0, 10).map((q: any, i) => {
+          const sorted = Object.values(bestAttempts).sort((a: QuizAttempt, b: QuizAttempt) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime());
+          return sorted.slice(0, 10).map((q: QuizAttempt) => {
             const meta = quizMeta[q.quiz_id] || {};
             const percent = q.total_questions > 0 ? (q.score / q.total_questions) * 100 : 0;
             const lulus = percent >= 50;
@@ -73,7 +89,7 @@ async function QuizHistorySection() {
 async function PerformanceOverviewSectionServer() {
   const cookieStore = cookies();
   const token = (await cookieStore).get("token")?.value || "";
-  let attempts: any[] = [];
+  let attempts: QuizAttempt[] = [];
   try {
     const res = await getQuizAttempts(token);
     attempts = res.attempts || [];
@@ -99,8 +115,8 @@ async function PerformanceOverviewSectionServer() {
       <div className="bg-white rounded-2xl shadow-md p-8 flex flex-col gap-6">
         <h3 className="text-lg font-semibold text-gray-800 mb-2">Your Performance Overview</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {stats.map((s, i) => (
-            <div key={i} className="flex flex-col items-center gap-2">
+          {stats.map((s) => (
+            <div key={s.label} className="flex flex-col items-center gap-2">
               <div>{s.icon}</div>
               <div className="text-2xl font-bold text-gray-800">{s.value}</div>
               <div className="text-gray-500 text-sm text-center">{s.label}</div>

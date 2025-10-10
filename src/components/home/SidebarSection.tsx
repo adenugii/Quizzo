@@ -25,9 +25,17 @@ const DUMMY_GROUP_LEADERBOARD = [
   { name: "Bismillah", xp: 2800, members: 8 },
 ];
 
+// Ganti semua any dengan tipe spesifik
+interface RecommendationUser {
+  id: string;
+  username: string;
+  image_url?: string;
+  follower_count?: number;
+}
+
 export default function SidebarSection({ token }: { token: string }) {
   const router = useRouter();
-  const [rekomendasi, setRekomendasi] = useState<any[]>([]);
+  const [rekomendasi, setRekomendasi] = useState<RecommendationUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingFollow, setLoadingFollow] = useState<string | null>(null);
 
@@ -62,7 +70,7 @@ export default function SidebarSection({ token }: { token: string }) {
           ) : rekomendasi.length === 0 ? (
             <div className="text-gray-400">Tidak ada rekomendasi akun.</div>
           ) : (
-            rekomendasi.map((r: any) => (
+            rekomendasi.map((r: RecommendationUser) => (
               <div key={r.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Image src={r.image_url || "/profile.png"} alt={r.username} width={32} height={32} className="rounded-full object-cover" />

@@ -8,14 +8,44 @@ import Footer from "@/components/common/Footer";
 import { useRouter } from "next/navigation";
 import { getQuizById, attemptQuiz, getQuizAttempts } from "@/services/quizservices";
 
+// Ganti semua any dengan tipe spesifik
+interface Quiz {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: string;
+  time_limit?: { String: string; Valid: boolean };
+  created_by: string;
+  questions: QuizQuestion[];
+  created_at: string;
+}
+interface QuizQuestion {
+  id: string;
+  quiz_id: string;
+  question_text: string;
+  options: QuizOption[];
+}
+interface QuizOption {
+  id: string;
+  content: string;
+}
+interface QuizResult {
+  attempts?: {
+    score: number;
+    total_questions: number;
+    submitted_at: string;
+  }[];
+  error?: string;
+}
+
 export default function QuizSoalClient({ quizId, soalId, token }: { quizId: string; soalId: string; token: string }) {
   const router = useRouter();
-  const [quiz, setQuiz] = useState<any>(null);
+  const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState<number>(-1);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [showResult, setShowResult] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<QuizResult | null>(null);
+  const [selected, setSelected] = useState<number>(-1);
 
   useEffect(() => {
     // Ambil answers dari localStorage jika ada
@@ -35,7 +65,7 @@ export default function QuizSoalClient({ quizId, soalId, token }: { quizId: stri
         setAnswers((prev) => {
           if (Object.keys(prev).length === 0) {
             const initial: Record<string, string> = {};
-            data.questions.forEach((q: any) => {
+            data.questions.forEach((q: QuizQuestion) => {
               initial[q.id] = "";
             });
             // Simpan ke localStorage juga
@@ -48,19 +78,26 @@ export default function QuizSoalClient({ quizId, soalId, token }: { quizId: stri
       setLoading(false);
     }
     fetchQuiz();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quizId, token]);
 
   useEffect(() => {
-    // Set selected sesuai jawaban yang sudah ada di answers saat navigasi soal
-    if (quiz && question && answers) {
-      const idx = question.options.findIndex((opt: any) => opt.id === answers[question.id]);
-      setSelected(idx);         
+    if (!quiz) {
+      setSelected(-1);
+      return;
+    }
+    const current = quiz.questions.findIndex((q) => q.id === soalId);
+    if (current === -1) {
+      setSelected(-1);
+      return;
+    }
+    const question = quiz.questions[current];
+    if (answers && question) {
+      const idx = question.options.findIndex((opt: QuizOption) => opt.id === answers[question.id]);
+      setSelected(idx);
     } else {
       setSelected(-1);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [soalId, quiz]); // Hapus answers dari dependency agar tidak error
+  }, [soalId, quiz, answers]);
 
   if (loading) {
     return <div className="text-center mt-10 text-[#2563eb]">Loading...</div>;
@@ -68,7 +105,7 @@ export default function QuizSoalClient({ quizId, soalId, token }: { quizId: stri
   if (!quiz) {
     return <div className="text-center mt-10 text-red-500">Quiz tidak ditemukan.</div>;
   }
-  const current = quiz.questions.findIndex((q: any) => q.id === soalId);
+  const current = quiz.questions.findIndex((q) => q.id === soalId);
   const total = quiz.questions.length;
   const question = quiz.questions[current];
 
@@ -90,7 +127,7 @@ export default function QuizSoalClient({ quizId, soalId, token }: { quizId: stri
   };
   const handleSubmit = async () => {
     // Cek apakah semua soal sudah dijawab
-    const allAnswered = quiz.questions.every((q: any) => answers[q.id] && answers[q.id] !== "");
+    const allAnswered = quiz.questions.every((q) => answers[q.id] && answers[q.id] !== "");
     if (!allAnswered) {
       alert("Harap jawab semua soal sebelum mengumpulkan quiz!");
       return;
@@ -103,7 +140,7 @@ export default function QuizSoalClient({ quizId, soalId, token }: { quizId: stri
       if (typeof window !== 'undefined') localStorage.removeItem(storageKey);
       const res = await getQuizAttempts(token, quizId);
       setResult(res);
-    } catch (e) {
+    } catch {
       setResult({ error: "Gagal submit atau mengambil hasil quiz" });
     }
   };
@@ -157,11 +194,11 @@ export default function QuizSoalClient({ quizId, soalId, token }: { quizId: stri
           levelColor={quiz.difficulty === "easy" ? "green" : quiz.difficulty === "medium" ? "yellow" : "red"}
           questions={total}
           time={Number(quiz.time_limit?.String) || 45}
-          progress={progress}
+    
           status="progress"
           question={question.question_text}
-          options={question.options.map((opt: any) => opt.content)}
-          selected={question.id in answers ? question.options.findIndex((opt: any) => opt.id === answers[question.id]) : -1}
+          options={question.options.map((opt) => opt.content)}
+          selected={selected}
           setSelected={handleSelect}
         />
         <QuizNavigation
