@@ -68,6 +68,7 @@ export async function signInWithGoogle(id_token: string) {
     credentials: "include",
   });
   const data = await res.json().catch(() => ({}));
+  console.log("Google signin response:", data);
   if (!res.ok) {
     throw new Error(data?.message || "Gagal login dengan Google");
   }
@@ -76,7 +77,7 @@ export async function signInWithGoogle(id_token: string) {
     Cookies.set("token", data.token, {
       expires: 7,
       path: "/",
-      sameSite: "None",
+      sameSite: "Lax",
       secure: process.env.NODE_ENV === "production",
     });
   }

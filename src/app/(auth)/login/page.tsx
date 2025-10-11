@@ -68,9 +68,7 @@ export default function LoginPage() {
 
       const data = await signInWithGoogle(id_token);
 
-      if (data.user?.username) {
-        Cookies.set("username", data.user.username);
-      }
+     
 
       setSuccess(true);
       setTimeout(() => {
