@@ -50,12 +50,12 @@ export default function MateriSayaSection({ quiz }: { quiz: MateriQuiz[] }) {
     <section className="mt-12">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-900">Materi Saya</h2>
-        <a
+        <Link
           href="/quiz-maker/quiz-saya"
           className="text-sm text-[#2563eb] hover:underline font-medium"
         >
           lihat selengkapnya
-        </a>
+        </Link>
       </div>
       <div className="grid md:grid-cols-3 gap-6">
         {latestQuiz.map((item: MateriQuiz & { total_questions?: number }) => (

@@ -48,17 +48,18 @@ export default function LoginPage() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push("/rekomendasi");
+        router.push("/");
       }, 1200);
-    } catch (err: any) {
-      setError(err.message || "Gagal login");
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      setError(errorMsg || "Gagal login");
     } finally {
       setLoading(false);
     }
   };
 
   // --- Google Login handler
-  const handleGoogleLogin = async (credentialResponse: any) => {
+  const handleGoogleLogin = async (credentialResponse: { credential?: string }) => {
     setLoading(true);
     setError(null);
     try {
@@ -73,11 +74,12 @@ export default function LoginPage() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push("/rekomendasi");
+        router.push("/");
       }, 1200);
-    } catch (err: any) {
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
       console.error("Google login error:", err);
-      setError(err.message || "Gagal login dengan Google");
+      setError(errorMsg || "Gagal login dengan Google");
     } finally {
       setLoading(false);
     }

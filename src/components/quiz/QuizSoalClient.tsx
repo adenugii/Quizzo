@@ -5,9 +5,8 @@ import QuizProgress from "@/components/quiz/QuizProgress";
 import QuizCard from "@/components/quiz/QuizCard";
 import QuizNavigation from "@/components/quiz/QuizNavigation";
 import Footer from "@/components/common/Footer";
-import { useRouter, useSearchParams } from "next/navigation";
-import { getQuizById, attemptQuiz, getQuizAttempts } from "@/services/quizservices";
-import CountdownTimer from "@/components/quiz/CountdownTimer";
+import { useRouter } from "next/navigation";
+import { getQuizById, attemptQuiz } from "@/services/quizservices";
 import SidebarQuizNavigation from "@/components/quiz/SidebarQuizNavigation";
 
 // Ganti semua any dengan tipe spesifik

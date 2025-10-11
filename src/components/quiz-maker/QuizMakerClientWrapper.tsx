@@ -5,7 +5,12 @@ import TipsSection from "@/components/quiz-maker/TipsSection";
 import MateriSayaSection from "@/components/quiz-maker/MateriSayaSection";
 import { getMyQuiz } from "@/services/quizservices";
 
-export default function QuizMakerClientWrapper({ token }: { token: string }) {
+interface QuizMakerClientWrapperProps {
+  quizId: string;
+  token: string;
+}
+
+export default function QuizMakerClientWrapper({ quizId, token }: QuizMakerClientWrapperProps) {
   const [quiz, setQuiz] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 

@@ -21,12 +21,20 @@ interface FeedItem {
   likes_count?: number;
 }
 
+interface Comment {
+  id: string;
+  quiz_id: string;
+  content: string;
+  commenter_by: string;
+  created_at: string;
+}
+
 export default function FeedSection({ token }: { token: string }) {
   const [filter, setFilter] = useState<'terbaru' | 'populer' | 'kesulitan'>('terbaru');
   const [feed, setFeed] = useState<FeedItem[]>([]);
   const [userMap, setUserMap] = useState<Record<string, { username?: string; image_url?: { String: string; Valid: boolean } }>>({});
   const [loading, setLoading] = useState(true);
-  const [commentsMap, setCommentsMap] = useState<Record<string, any[]>>({});
+  const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>({});
   const [commentModalQuizId, setCommentModalQuizId] = useState<string | null>(null);
   const [commentInput, setCommentInput] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
@@ -39,21 +47,22 @@ export default function FeedSection({ token }: { token: string }) {
       const data = await getFeed(token);
       setFeed(data);
       // Ambil semua user unik dari feed
-      const userIds = Array.from(new Set(data.map((q: FeedItem) => q.created_by))) as string[];
+      const userIds = Array.from(new Set(data.map((q: FeedItem) => q.created_by)));
       const userMapTemp: Record<string, { username?: string; image_url?: { String: string; Valid: boolean } }> = {};
-      await Promise.all(userIds.map(async (id: string) => {
-        const user = await getUserById(id, token);
-        if (user) userMapTemp[id] = user;
+      await Promise.all(userIds.map(async (id) => {
+        const userId = String(id);
+        const user = await getUserById(userId, token);
+        if (user) userMapTemp[userId] = user;
       }));
       setUserMap(userMapTemp);
       // Fetch 3 komentar terbaru untuk setiap quiz
-      const commentsTemp: Record<string, any[]> = {};
+      const commentsTemp: Record<string, Comment[]> = {};
       const commenterIds = new Set<string>();
-      await Promise.all(data.map(async (item: any) => {
+      await Promise.all(data.map(async (item: FeedItem) => {
         try {
           const res = await getCommentsByQuizId(item.id, token);
           commentsTemp[item.id] = (res.comments || []).slice(0, 3);
-          (res.comments || []).slice(0, 3).forEach((c: any) => commenterIds.add(c.commenter_by));
+          (res.comments || []).slice(0, 3).forEach((c: Comment) => commenterIds.add(c.commenter_by));
         } catch {
           commentsTemp[item.id] = [];
         }
@@ -93,7 +102,7 @@ export default function FeedSection({ token }: { token: string }) {
       setCommentsMap((prev) => ({ ...prev, [quizId]: res.comments || [] }));
       // Fetch username untuk semua commenter_by di modal
       const userCommentMapTemp: Record<string, { username?: string }> = { ...userCommentMap };
-      await Promise.all((res.comments || []).map(async (c: any) => {
+      await Promise.all((res.comments || []).map(async (c: Comment) => {
         if (!userCommentMapTemp[c.commenter_by]) {
           const user = await getUserById(c.commenter_by, token);
           if (user) userCommentMapTemp[c.commenter_by] = { username: user.username };
@@ -132,7 +141,7 @@ export default function FeedSection({ token }: { token: string }) {
     }
   }
 
-  let filteredFeed = [...feed];
+  const filteredFeed = [...feed];
   if (filter === 'populer') filteredFeed.sort((a, b) => (b.attempts || 0) - (a.attempts || 0));
   if (filter === 'kesulitan') filteredFeed.sort((a, b) => (a.difficulty || '').localeCompare(b.difficulty || ''));
 

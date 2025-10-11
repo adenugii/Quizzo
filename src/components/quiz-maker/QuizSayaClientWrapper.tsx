@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { getMyQuiz } from "@/services/quizservices";
 import QuizSayaListSection from "./QuizSayaListSection";
 
-export default function QuizSayaClientWrapper({ token }: { token: string }) {
+interface QuizSayaClientWrapperProps {
+  token: string;
+}
+
+export default function QuizSayaClientWrapper({ token }: QuizSayaClientWrapperProps) {
   const [quiz, setQuiz] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 

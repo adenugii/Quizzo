@@ -1,5 +1,3 @@
-import { FaRegClock } from "react-icons/fa";
-
 export default function SidebarQuizNavigation({
   questions,
   answers,
