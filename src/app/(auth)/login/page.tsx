@@ -8,7 +8,7 @@ import Cookies from "js-cookie";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 
 const GOOGLE_CLIENT_ID =
-  "510376724757-a4nrnaqp89rjkf0q8iu2arsn18u1te5r.apps.googleusercontent.com";
+  "397171539019-uf6svnf3ahvc3krmbg053q2bkt7ihn1k.apps.googleusercontent.com";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -87,16 +87,20 @@ export default function LoginPage() {
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <LoginAuthLayout onLogin={handleLogin} />
-      <div className="flex flex-col items-center mt-4">
-        <GoogleLogin
-          onSuccess={handleGoogleLogin}
-          onError={() => setError("Gagal login dengan Google")}
-          width="300"
-          useOneTap={false}
-        />
-        {error && <div className="text-red-500 mt-2 text-sm">{error}</div>}
-      </div>
+      <LoginAuthLayout
+        onLogin={handleLogin}
+        googleButton={
+          <div className="flex flex-col items-center mt-4 w-full">
+            <GoogleLogin
+              onSuccess={handleGoogleLogin}
+              onError={() => setError("Gagal login dengan Google")}
+              width="300"
+              useOneTap={false}
+            />
+          </div>
+        }
+        googleError={error}
+      />
 
       {success && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">

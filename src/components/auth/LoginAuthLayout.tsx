@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -41,9 +41,11 @@ type LoginAuthLayoutProps = {
 		setError: (msg: string | null) => void;
 		setLoading: (v: boolean) => void;
 	}) => void;
+	googleButton?: ReactNode;
+	googleError?: string | null;
 };
 
-export default function LoginAuthLayout({ onLogin }: LoginAuthLayoutProps) {
+export default function LoginAuthLayout({ onLogin, googleButton, googleError }: LoginAuthLayoutProps) {
 	const [idx, setIdx] = useState(0);
 	const [form, setForm] = useState({ email: "", password: "" });
 	const [rememberMe, setRememberMe] = useState(false);
@@ -166,15 +168,21 @@ export default function LoginAuthLayout({ onLogin }: LoginAuthLayoutProps) {
 							<span className="text-xs text-gray-400">atau</span>
 							<div className="flex-1 h-px bg-gray-200" />
 						</div>
-						<button
-							type="button"
-							className="w-full border border-gray-200 shadow-sm rounded-md py-2 font-semibold flex items-center justify-center gap-2 text-gray-700 bg-white hover:bg-gray-50 transition"
-						>
-							<span className="flex items-center justify-center w-5 h-5">
-								<span className="text-[22px] font-bold text-[#EA4335]">G</span>
-							</span>
-							<span className="flex-1 text-center">Masuk dengan Google</span>
-						</button>
+						{/* render Google button from parent if provided, otherwise show fallback */}
+						{googleButton ? (
+							<div className="w-full">{googleButton}</div>
+						) : (
+							<button
+								type="button"
+								className="w-full border border-gray-200 shadow-sm rounded-md py-2 font-semibold flex items-center justify-center gap-2 text-gray-700 bg-white hover:bg-gray-50 transition"
+							>
+								<span className="flex items-center justify-center w-5 h-5">
+									<span className="text-[22px] font-bold text-[#EA4335]">G</span>
+								</span>
+								<span className="flex-1 text-center">Masuk dengan Google</span>
+							</button>
+						)}
+						{googleError && <div className="text-xs text-red-500 mt-2">{googleError}</div>}
 					</form>
 					<div className="text-xs text-gray-500 mt-6 text-center">
 						Belum punya akun?{" "}
