@@ -29,7 +29,7 @@ export default function CountdownTimer({ seconds, onTimeUp, quizId }: { seconds:
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [timeLeft, onTimeUp]);
+  }, [timeLeft, onTimeUp, storageKey]);
 
   // Reset timer jika quizId berubah
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function CountdownTimer({ seconds, onTimeUp, quizId }: { seconds:
       }
       return seconds;
     });
-  }, [quizId, seconds]);
+  }, [quizId, seconds, storageKey]);
 
   const minutes = Math.floor(timeLeft / 60);
   const secs = timeLeft % 60;
