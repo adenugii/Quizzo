@@ -7,7 +7,7 @@ interface QuizDetail {
   title: string;
   description: string;
   difficulty: string;
-  time_limit?: { String: string; Valid: boolean };
+  time_limit?: { String: string; Valid: boolean; Int64?: number };
   created_by: string;
   questions: { id: string; quiz_id: string; question_text: string; options: { id: string; content: string }[] }[];
   created_at: string;
@@ -66,7 +66,15 @@ export default function QuizDetailSection({ quiz }: { quiz: QuizDetail }) {
         </div>
         <div className="bg-[#f8fafc] rounded-lg p-3 flex flex-col items-center">
           <div className="text-xs text-gray-500 mb-1">Estimasi Waktu</div>
-          <div className="font-bold text-lg text-[#2563eb]">{quiz.time_limit?.String ? quiz.time_limit.String + " Menit" : "30 Menit"}</div>
+          <div className="font-bold text-lg text-[#2563eb]">
+            {quiz.time_limit && quiz.time_limit.Valid
+              ? quiz.time_limit.Int64
+                ? `${Math.ceil(Number(quiz.time_limit.Int64) / 60)} Menit`
+                : quiz.time_limit.String
+                  ? `${Math.ceil(Number(quiz.time_limit.String) / 60)} Menit`
+                  : "-"
+              : "-"}
+          </div>
         </div>
         <div className="bg-[#f8fafc] rounded-lg p-3 flex flex-col items-center">
           <div className="text-xs text-gray-500 mb-1">Tanggal</div>

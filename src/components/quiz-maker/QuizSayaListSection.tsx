@@ -11,7 +11,7 @@ interface MateriQuiz {
   created_at: string;
 }
 
-export default function MateriSayaSection({ quiz }: { quiz: MateriQuiz[] }) {
+export default function QuizSayaListSection({ quiz, loading }: { quiz: MateriQuiz[]; loading: boolean }) {
   function formatDate(dateStr: string) {
     if (!dateStr) return "-";
     const date = new Date(dateStr);
@@ -31,11 +31,20 @@ export default function MateriSayaSection({ quiz }: { quiz: MateriQuiz[] }) {
   function truncateTitle(title: string, max: number = 60) {
     return title.length > max ? title.slice(0, max) + "..." : title;
   }
+  if (loading) {
+    return (
+      <section className="mt-12">
+        <div className="text-center py-12 text-[#2563eb] font-semibold text-lg">
+          Memuat data quiz...
+        </div>
+      </section>
+    );
+  }
   if (!quiz || quiz.length === 0) {
     return (
       <section className="mt-12">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Materi Saya</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Quiz Saya</h2>
         </div>
         <div className="text-center py-12 text-[#2563eb] font-semibold text-lg">
           Kamu belum membuat quiz, ayo buat sekarang juga
@@ -43,22 +52,13 @@ export default function MateriSayaSection({ quiz }: { quiz: MateriQuiz[] }) {
       </section>
     );
   }
-  // Ambil 3 quiz terbaru
-  const sortedQuiz = [...quiz].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-  const latestQuiz = sortedQuiz.slice(0, 3);
   return (
     <section className="mt-12">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">Materi Saya</h2>
-        <a
-          href="/quiz-maker/quiz-saya"
-          className="text-sm text-[#2563eb] hover:underline font-medium"
-        >
-          lihat selengkapnya
-        </a>
+        <h2 className="text-lg font-semibold text-gray-900">Quiz Saya</h2>
       </div>
       <div className="grid md:grid-cols-3 gap-6">
-        {latestQuiz.map((item: MateriQuiz & { total_questions?: number }) => (
+        {quiz.map((item: MateriQuiz & { total_questions?: number }) => (
           <div key={item.id} className={`bg-white rounded-xl shadow-sm p-5 flex flex-col gap-3 border-t-4 ${getDifficultyColor(item.difficulty).split(' ')[2]}`}>
             <div className="flex items-center gap-2">
               <span className={`${getDifficultyColor(item.difficulty).split(' ').slice(0,2).join(' ')} text-xs font-semibold px-2 py-0.5 rounded`}>{item.difficulty}</span>

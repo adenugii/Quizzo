@@ -6,7 +6,7 @@ export async function uploadQuiz({ file, num_questions, difficulty, description,
   difficulty: string;
   description?: string;
   token: string;
-  time_limit?: number;
+  time_limit?: string;
 }) {
   const formData = new FormData();
   formData.append("file", file);
@@ -99,5 +99,18 @@ export async function getQuizAttempts(token: string, quizId?: string) {
     return { ...data, attempts: data.attempts.filter((a: QuizAttempt) => a.quiz_id === quizId) };
   }
   return data;
+}
+
+export async function getDetailAttempt(idAttempt: string, token: string) {
+  const headers: Record<string, string> = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  const res = await fetch(`${API_BASE_URL}/quiz/attempt/${idAttempt}`, {
+    method: "GET",
+    headers,
+    credentials: "include",
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error("Gagal mengambil detail attempt");
+  return await res.json();
 }
 
