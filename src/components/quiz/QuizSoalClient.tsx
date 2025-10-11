@@ -202,8 +202,8 @@ export default function QuizSoalClient({ quizId, soalId, token }: { quizId: stri
   let timeLimitSeconds = 0;
   if (quiz.time_limit && quiz.time_limit.Valid) {
     if (typeof quiz.time_limit.String !== 'undefined' && quiz.time_limit.String !== "") timeLimitSeconds = Number(quiz.time_limit.String);
-    else if (typeof (quiz.time_limit as any).Int64 !== 'undefined') timeLimitSeconds = Number((quiz.time_limit as any).Int64);
-    else if (typeof (quiz.time_limit as any).Number !== 'undefined') timeLimitSeconds = Number((quiz.time_limit as any).Number);
+    else if (typeof (quiz.time_limit as { Int64?: number }).Int64 !== 'undefined') timeLimitSeconds = Number((quiz.time_limit as { Int64?: number }).Int64);
+    else if (typeof (quiz.time_limit as { Number?: number }).Number !== 'undefined') timeLimitSeconds = Number((quiz.time_limit as { Number?: number }).Number);
   }
   if (!timeLimitSeconds) timeLimitSeconds = 45 * 60; // fallback 45 menit
 
