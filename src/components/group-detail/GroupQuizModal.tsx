@@ -1,35 +1,36 @@
-import { FaTimes, FaUnlock, FaLock } from "react-icons/fa";
-import { ChangeEvent } from "react";
+// src/components/group-detail/GroupQuizModal.tsx
+
+import { FaTimes, FaCheckCircle } from "react-icons/fa";
 
 interface GroupQuizModalProps {
   show: boolean;
   onClose: () => void;
-  form: {
-    name: string;
-    desc: string;
-    maxMember: string;
-    picture?: File;
-    isPublic: boolean;
-  };
-  preview: string | null;
-  onFormChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onImageChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  onTogglePublic: () => void;
+  quizzes: any[]; // Prop ini yang kadang bisa undefined
+  loading: boolean;
+  selectedQuizId: string | null;
+  onSelectQuiz: (quizId: string) => void;
+  onSubmit: () => void;
 }
 
 export default function GroupQuizModal({
   show,
   onClose,
-  form,
-  preview,
-  onFormChange,
-  onImageChange,
-  onTogglePublic,
+  quizzes, // Terima prop seperti biasa
+  loading,
+  selectedQuizId,
+  onSelectQuiz,
+  onSubmit,
 }: GroupQuizModalProps) {
   if (!show) return null;
+
+  // ✅ PERBAIKAN DI SINI:
+  // Buat variabel baru dengan fallback ke array kosong.
+  // Jika 'quizzes' adalah undefined atau null, 'quizList' akan menjadi [].
+  const quizList = quizzes || [];
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-8 relative">
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-lg p-8 relative">
         <button
           className="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-xl"
           onClick={onClose}
@@ -37,95 +38,50 @@ export default function GroupQuizModal({
         >
           <FaTimes />
         </button>
-        <h2 className="font-bold text-xl text-gray-900 mb-6">Tambah Quiz Baru</h2>
-        <form className="flex flex-col gap-4">
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">Nama Quiz</label>
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={onFormChange}
-              className="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-violet-500"
-              placeholder="Masukkan nama quiz"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">Deskripsi</label>
-            <textarea
-              name="desc"
-              value={form.desc}
-              onChange={onFormChange}
-              className="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-violet-500"
-              placeholder="Deskripsi quiz"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">Max Member</label>
-            <input
-              type="number"
-              name="maxMember"
-              value={form.maxMember}
-              onChange={onFormChange}
-              className="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-violet-500"
-              placeholder="Jumlah maksimal anggota"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">Group Picture</label>
-            <div className="flex items-center gap-4">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={onImageChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
-              />
-              {preview && (
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-12 h-12 rounded-lg object-cover border"
-                />
+        <h2 className="font-bold text-xl text-gray-900 mb-6">Pilih Quiz untuk Ditambahkan</h2>
+        
+        <div className="flex flex-col gap-3 max-h-80 overflow-y-auto pr-2">
+          {loading && <p className="text-gray-500 text-center py-4">Memuat kuis Anda...</p>}
+
+          {/* Gunakan 'quizList' yang sudah aman */}
+          {!loading && quizList.length === 0 && (
+            <div className="text-center py-4">
+              <p className="text-gray-500">Anda belum membuat kuis.</p>
+              <a href="/quiz/create" className="text-violet-500 hover:underline font-medium">Buat kuis sekarang</a>
+            </div>
+          )}
+
+          {/* Gunakan 'quizList' yang sudah aman */}
+          {!loading && quizList.map((quiz) => (
+            <button
+              key={quiz.id}
+              onClick={() => onSelectQuiz(quiz.id)}
+              className={`w-full text-left p-4 rounded-lg border-2 transition-all flex items-center gap-4 ${
+                selectedQuizId === quiz.id
+                  ? "bg-violet-50 border-violet-500"
+                  : "bg-gray-50 border-gray-200 hover:border-violet-300"
+              }`}
+            >
+              <div className="flex-1">
+                <p className="font-semibold text-gray-800">{quiz.title}</p>
+                <p className="text-sm text-gray-500">{quiz.description}</p>
+                <p className="text-xs text-gray-400 mt-1">{quiz.total_questions} Soal</p>
+              </div>
+              {selectedQuizId === quiz.id && (
+                <FaCheckCircle className="text-violet-500 text-xl flex-shrink-0" />
               )}
-            </div>
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">Tipe Grup</label>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border font-semibold transition ${
-                  form.isPublic
-                    ? "bg-violet-500 text-white border-violet-500"
-                    : "bg-white text-gray-700 border-gray-200"
-                }`}
-                onClick={() => !form.isPublic && onTogglePublic()}
-              >
-                <FaUnlock />
-                Public
-              </button>
-              <button
-                type="button"
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border font-semibold transition ${
-                  !form.isPublic
-                    ? "bg-violet-500 text-white border-violet-500"
-                    : "bg-white text-gray-700 border-gray-200"
-                }`}
-                onClick={() => form.isPublic && onTogglePublic()}
-              >
-                <FaLock />
-                Private
-              </button>
-            </div>
-          </div>
-          <button
-            type="button"
-            className="mt-4 w-full py-2 rounded-lg bg-violet-500 text-white font-semibold text-base shadow hover:bg-violet-600 transition"
-            onClick={onClose}
-          >
-            Simpan Quiz
-          </button>
-        </form>
+            </button>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          className="mt-6 w-full py-2 rounded-lg bg-violet-500 text-white font-semibold text-base shadow hover:bg-violet-600 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+          onClick={onSubmit}
+          disabled={!selectedQuizId || loading}
+        >
+          Tambahkan Quiz ke Grup
+        </button>
       </div>
     </div>
   );
