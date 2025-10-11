@@ -234,7 +234,7 @@ export default function QuizSoalClient({ quizId, soalId, token }: { quizId: stri
               <div className="text-xs text-gray-500 mb-2">Dikumpulkan pada: {new Date(result.attempts[0].submitted_at).toLocaleString("id-ID")}</div>
             </>
           ) : (
-            <div className="text-red-500 mb-4">{result?.error || "Gagal mengambil hasil quiz."}</div>
+            <div className="text-red-500 mb-4">{result?.error || "sedang menunggu hasil quiz."}</div>
           )}
           <button className="bg-[#2563eb] text-white rounded-md px-6 py-2 font-semibold hover:bg-[#174bbd] transition" onClick={() => router.push("/")}>Kembali ke Beranda</button>
         </div>
