@@ -43,9 +43,9 @@ export default function QuizResultPageSection({ result }: QuizResultPageSectionP
   }
 
   return (
-    <div className="w-full flex flex-col md:flex-row gap-8">
+    <div className="w-full flex flex-col md:flex-row">
       {/* Main Section */}
-      <div className="flex-1 flex flex-col gap-6">
+      <div className="flex-1 flex flex-col gap-0">
         {/* Judul & Checklist */}
         <div className="flex flex-col items-center mb-2">
           <div className="text-green-500 text-5xl mb-2">
@@ -120,7 +120,7 @@ export default function QuizResultPageSection({ result }: QuizResultPageSectionP
         </div>
       </div>
       {/* Sidebar (opsional, bisa diisi aksi, achievement, dsb) */}
-      <aside className="w-full md:w-80 flex-shrink-0 flex flex-col gap-6">
+      <aside className="w-full md:w-80 flex-shrink-0 flex flex-col">
         {/* Tempatkan komponen sidebar di sini jika perlu */}
       </aside>
     </div>

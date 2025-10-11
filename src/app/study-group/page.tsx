@@ -5,15 +5,14 @@ import StudyGroupList from "@/components/StudyGroup/StudyGroupList";
 import StudyGroupHeader from "@/components/StudyGroup/StudyGroupHeader";
 import StudyGroupCreateButton from "@/components/StudyGroup/StudyGroupCreateButton";
 import { cookies } from "next/headers";
-import { getAllGroups } from "@/services/groupservices";
+import { getMyGroup, joinGroup } from "@/services/groupservices";
+import JoinGroupField from "@/components/StudyGroup/JoinGroupField";
 
 export default async function StudyGroupsPage() {
-  const cookieStore = cookies();
-  const token = (await cookieStore).get("token")?.value || "";
-  const groupsRes = await getAllGroups();
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value || "";
+  const groupsRes = await getMyGroup(token);
   const studyGroups = groupsRes.study_groups || [];
-
-  // Mapping ke StudyGroupCardProps
   const mappedGroups = studyGroups.map((group: any, idx: number) => ({
     id: group.id,
     title: group.name,
@@ -31,8 +30,12 @@ export default async function StudyGroupsPage() {
     <div className="min-h-screen bg-[#fafbfc]">
       <Navbar />
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <StudyGroupHeader />
-        <StudyGroupCreateButton token={token} />
+        <div className="flex flex-col md:flex-row justify-between md:items-center mb-8 gap-4">
+          <StudyGroupHeader />
+          <StudyGroupCreateButton token={token} />
+        </div>
+        {/* Join Group Field */}
+        <JoinGroupField token={token} />
         <StudyGroupList groups={mappedGroups} token={token} />
       </main>
       <Footer />

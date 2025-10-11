@@ -11,8 +11,11 @@ export default function LeaderboardLayout({
   groupLeaderboardData: { leaderboard: any[] };
 }) {
   return (
-    <div className="flex flex-col md:flex-row gap-6 px-2 md:px-0 py-8 flex-1">
-      <LeaderboardSidebar />
+    <div className="flex flex-col md:flex-row gap-6 px-4 md:px-8 py-8 flex-1">
+      <LeaderboardSidebar
+        leaderboardData={leaderboardData}
+        groupLeaderboardData={groupLeaderboardData}
+      />
       <LeaderboardContent
         leaderboardData={leaderboardData}
         groupLeaderboardData={groupLeaderboardData}

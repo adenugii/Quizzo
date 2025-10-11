@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getUserRecommendations, followUser } from "@/services/userservices";
+import { getUserLeaderboard, getGroupLeaderboard } from "@/services/leaderboardservices";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -8,21 +9,6 @@ const DUMMY_TRENDING = [
   { title: "React Hooks Deep Dive", attempts: 1234 },
   { title: "Python Data Science", attempts: 987 },
   { title: "CSS Grid & Flexbox", attempts: 756 },
-];
-
-const DUMMY_GLOBAL_LEADERBOARD = [
-  { name: "Sarah Wilson", xp: 4810 },
-  { name: "Mike Chen", xp: 4320 },
-  { name: "Ahmad Rizki (You)", xp: 3450 },
-  { name: "Lisa Park", xp: 3200 },
-  { name: "David Kim", xp: 2100 },
-];
-
-const DUMMY_GROUP_LEADERBOARD = [
-  { name: "Matematika Dasar", xp: 4850, members: 15 },
-  { name: "Fisika Terapan", xp: 3900, members: 10 },
-  { name: "Kimia SMA", xp: 3200, members: 12 },
-  { name: "Bismillah", xp: 2800, members: 8 },
 ];
 
 // Ganti semua any dengan tipe spesifik
@@ -38,6 +24,8 @@ export default function SidebarSection({ token }: { token: string }) {
   const [rekomendasi, setRekomendasi] = useState<RecommendationUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingFollow, setLoadingFollow] = useState<string | null>(null);
+  const [globalLeaderboard, setGlobalLeaderboard] = useState<any[]>([]);
+  const [groupLeaderboard, setGroupLeaderboard] = useState<any[]>([]);
 
   useEffect(() => {
     if (!token) return;
@@ -45,6 +33,14 @@ export default function SidebarSection({ token }: { token: string }) {
     getUserRecommendations(token).then((users) => {
       setRekomendasi(users);
       setLoading(false);
+    });
+    // Fetch leaderboard global
+    getUserLeaderboard().then((res) => {
+      setGlobalLeaderboard(res.leaderboard.slice(0, 5));
+    });
+    // Fetch leaderboard grup
+    getGroupLeaderboard().then((res) => {
+      setGroupLeaderboard(res.leaderboard.slice(0, 5));
     });
   }, [token]);
 
@@ -110,10 +106,10 @@ export default function SidebarSection({ token }: { token: string }) {
           <button className="text-xs text-[#2563eb] font-semibold" onClick={()=>router.push("/leaderboard")}>View All</button>
         </div>
         <div className="flex flex-col gap-2">
-          {DUMMY_GLOBAL_LEADERBOARD.map((u, i) => (
+          {globalLeaderboard.map((u, i) => (
             <div key={i} className={`flex items-center justify-between text-sm ${i===0 ? 'font-bold text-yellow-500' : ''}`}>
-              <span>{u.name}</span>
-              <span>{u.xp} XP</span>
+              <span>{u.username || u.name}</span>
+              <span>{u.xp || u.total_score} XP</span>
             </div>
           ))}
         </div>
@@ -122,15 +118,12 @@ export default function SidebarSection({ token }: { token: string }) {
       <div className="bg-white rounded-xl shadow-sm p-5">
         <div className="flex items-center justify-between mb-2">
           <h4 className="font-bold text-base text-gray-900">Leaderboard Study Group</h4>
-          <form method="GET" action="/leaderboard-group">
-            <button type="submit" className="text-xs text-[#2563eb] font-semibold">View All</button>
-          </form>
         </div>
         <div className="flex flex-col gap-2">
-          {DUMMY_GROUP_LEADERBOARD.map((g, i) => (
+          {groupLeaderboard.map((g, i) => (
             <div key={i} className="flex items-center justify-between text-sm">
-              <span>{g.name}</span>
-              <span>{g.xp} XP</span>
+              <span>{g.name || g.group_name}</span>
+              <span>{g.xp || g.total_score} XP</span>
             </div>
           ))}
         </div>

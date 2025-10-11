@@ -1,5 +1,6 @@
 'use client';
-// filepath: c:\Data\Project\quizzo\src\components\StudyGroup\StudyGroupCreateButton.tsx
+// src/components/StudyGroup/StudyGroupCreateButton.tsx
+
 import { useState } from "react";
 import StudyGroupCreateCard from "./StudyGroupCreateCard";
 import { createStudyGroup } from "@/services/groupservices";
@@ -18,11 +19,15 @@ export default function StudyGroupCreateButton({ token }: { token: string }) {
     setLoading(true);
     setError(undefined);
     try {
+      // Panggil createStudyGroup dengan data DAN token
+      // Error "Expected 1 arguments, but got 2" akan hilang
       await createStudyGroup(data, token);
+      
       setShowCreate(false);
-      // Optionally refresh group list here
+      window.location.reload(); // Refresh untuk melihat grup baru
     } catch (err) {
-      setError("Gagal membuat grup. Silakan coba lagi.");
+      const message = err instanceof Error ? err.message : "Gagal membuat grup.";
+      setError(message);
     }
     setLoading(false);
   };

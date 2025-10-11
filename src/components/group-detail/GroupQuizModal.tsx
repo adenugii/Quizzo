@@ -1,35 +1,56 @@
-import { FaTimes, FaUnlock, FaLock } from "react-icons/fa";
-import { ChangeEvent } from "react";
+// src/components/group-detail/GroupQuizModal.tsx
+
+import { FaTimes, FaCheckCircle } from "react-icons/fa";
+import { assignQuizToStudyGroup } from "@/services/groupservices";
+import { useState } from "react";
 
 interface GroupQuizModalProps {
   show: boolean;
   onClose: () => void;
-  form: {
-    name: string;
-    desc: string;
-    maxMember: string;
-    picture?: File;
-    isPublic: boolean;
-  };
-  preview: string | null;
-  onFormChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onImageChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  onTogglePublic: () => void;
+  quizzes: any[];
+  loading: boolean;
+  selectedQuizId: string | null;
+  onSelectQuiz: (quizId: string) => void;
+  onSubmit: () => void;
+  groupId: string;
+  token?: string;
+  onRefresh?: () => void;
 }
 
 export default function GroupQuizModal({
   show,
   onClose,
-  form,
-  preview,
-  onFormChange,
-  onImageChange,
-  onTogglePublic,
+  quizzes,
+  loading,
+  selectedQuizId,
+  onSelectQuiz,
+  onSubmit,
+  groupId,
+  token,
+  onRefresh,
 }: GroupQuizModalProps) {
+  const [addingQuizId, setAddingQuizId] = useState<string | null>(null);
+  const [notif, setNotif] = useState<string | null>(null);
   if (!show) return null;
+  const quizList = quizzes || [];
+
+  const handleAddQuiz = async (quizId: string) => {
+    if (!groupId || !token) return;
+    setAddingQuizId(quizId);
+    setNotif(null);
+    try {
+      await assignQuizToStudyGroup(quizId, groupId, token);
+      setNotif("Quiz berhasil ditambahkan ke grup!");
+      if (onRefresh) onRefresh();
+    } catch {
+      setNotif("Gagal menambahkan quiz ke grup.");
+    }
+    setAddingQuizId(null);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-8 relative">
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-lg p-8 relative">
         <button
           className="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-xl"
           onClick={onClose}
@@ -37,95 +58,32 @@ export default function GroupQuizModal({
         >
           <FaTimes />
         </button>
-        <h2 className="font-bold text-xl text-gray-900 mb-6">Tambah Quiz Baru</h2>
-        <form className="flex flex-col gap-4">
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">Nama Quiz</label>
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={onFormChange}
-              className="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-violet-500"
-              placeholder="Masukkan nama quiz"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">Deskripsi</label>
-            <textarea
-              name="desc"
-              value={form.desc}
-              onChange={onFormChange}
-              className="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-violet-500"
-              placeholder="Deskripsi quiz"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">Max Member</label>
-            <input
-              type="number"
-              name="maxMember"
-              value={form.maxMember}
-              onChange={onFormChange}
-              className="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-violet-500"
-              placeholder="Jumlah maksimal anggota"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">Group Picture</label>
-            <div className="flex items-center gap-4">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={onImageChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
-              />
-              {preview && (
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-12 h-12 rounded-lg object-cover border"
-                />
-              )}
+        <h2 className="font-bold text-xl text-gray-900 mb-6">Pilih Quiz untuk Ditambahkan</h2>
+        <div className="flex flex-col gap-3 max-h-80 overflow-y-auto pr-2">
+          {loading && <p className="text-gray-500 text-center py-4">Memuat kuis Anda...</p>}
+          {!loading && quizList.length === 0 && (
+            <div className="text-center py-4">
+              <p className="text-gray-500">Anda belum membuat kuis.</p>
             </div>
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">Tipe Grup</label>
-            <div className="flex items-center gap-3">
+          )}
+          {!loading && quizList.map((quiz) => (
+            <div key={quiz.id} className="w-full text-left p-4 rounded-lg border-2 transition-all flex items-center gap-4 bg-gray-50 border-gray-200 hover:border-violet-300">
+              <div className="flex-1">
+                <p className="font-semibold text-gray-800">{quiz.title}</p>
+                <p className="text-sm text-gray-500">{quiz.description}</p>
+                <p className="text-xs text-gray-400 mt-1">{quiz.total_questions} Soal</p>
+              </div>
               <button
-                type="button"
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border font-semibold transition ${
-                  form.isPublic
-                    ? "bg-violet-500 text-white border-violet-500"
-                    : "bg-white text-gray-700 border-gray-200"
-                }`}
-                onClick={() => !form.isPublic && onTogglePublic()}
+                className="bg-violet-500 text-white px-3 py-1 rounded font-semibold text-xs hover:bg-violet-600 transition disabled:bg-gray-300"
+                onClick={() => handleAddQuiz(quiz.id)}
+                disabled={addingQuizId === quiz.id}
               >
-                <FaUnlock />
-                Public
-              </button>
-              <button
-                type="button"
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border font-semibold transition ${
-                  !form.isPublic
-                    ? "bg-violet-500 text-white border-violet-500"
-                    : "bg-white text-gray-700 border-gray-200"
-                }`}
-                onClick={() => form.isPublic && onTogglePublic()}
-              >
-                <FaLock />
-                Private
+                {addingQuizId === quiz.id ? "Menambahkan..." : "Tambahkan Quiz"}
               </button>
             </div>
-          </div>
-          <button
-            type="button"
-            className="mt-4 w-full py-2 rounded-lg bg-violet-500 text-white font-semibold text-base shadow hover:bg-violet-600 transition"
-            onClick={onClose}
-          >
-            Simpan Quiz
-          </button>
-        </form>
+          ))}
+        </div>
+        {notif && <div className="text-center text-green-600 mt-4 text-sm">{notif}</div>}
       </div>
     </div>
   );

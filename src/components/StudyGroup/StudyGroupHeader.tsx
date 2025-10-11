@@ -3,10 +3,10 @@ export default function StudyGroupHeader() {
   return (
     <div className="mb-8">
       <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-        Study Groups
+        Grup Anda
       </h1>
       <p className="text-gray-500 text-base">
-        Bergabung dengan teman untuk belajar bersama
+        Kelola dan bergabung dengan grup belajar bersama teman-teman Anda.
       </p>
     </div>
   );

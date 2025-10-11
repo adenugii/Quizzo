@@ -1,6 +1,19 @@
+"use client";
+import { useEffect, useState } from "react";
 import { MdLeaderboard } from "react-icons/md";
+import { getUserLeaderboard } from "@/services/leaderboardservices";
+import { useRouter } from "next/navigation";
 
 export default function ProfileLeaderboard() {
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    getUserLeaderboard().then((res) => {
+      setLeaderboard(res.leaderboard.slice(0, 5));
+    });
+  }, []);
+
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
       <div className="flex items-center gap-2 mb-4">
@@ -12,50 +25,18 @@ export default function ProfileLeaderboard() {
         </span>
       </div>
       <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-3 bg-yellow-50 rounded-lg px-3 py-2">
-          <span className="font-bold text-yellow-500 text-base w-5 text-center">1</span>
-          <img src="/profile.png" alt="Sarah Wilson" className="w-8 h-8 rounded-full object-cover" />
-          <div className="flex-1">
-            <div className="font-semibold text-gray-900 text-sm">Sarah Wilson</div>
-            <div className="text-xs text-gray-400">4,850 XP</div>
+        {leaderboard.map((u, i) => (
+          <div key={i} className={`flex items-center gap-3 ${i===0 ? 'bg-yellow-50' : i===2 ? 'bg-blue-50 border border-blue-200' : ''} rounded-lg px-3 py-2`}>
+            <span className={`font-bold text-base w-5 text-center ${i===0 ? 'text-yellow-500' : i===2 ? 'text-blue-500' : 'text-gray-400'}`}>{u.rank || i+1}</span>
+            <img src={u.image_url || "/profile.png"} alt={u.username || u.name} className="w-8 h-8 rounded-full object-cover" />
+            <div className="flex-1">
+              <div className={`font-semibold text-sm ${i===2 ? 'text-[#2563eb]' : 'text-gray-900'}`}>{u.username || u.name}{i===2 ? ' (You)' : ''}</div>
+              <div className="text-xs text-gray-400">{u.xp || u.total_score} XP</div>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-3 px-3 py-2">
-          <span className="font-bold text-gray-400 text-base w-5 text-center">2</span>
-          <img src="/profile.png" alt="Mike Chen" className="w-8 h-8 rounded-full object-cover" />
-          <div className="flex-1">
-            <div className="font-semibold text-gray-900 text-sm">Mike Chen</div>
-            <div className="text-xs text-gray-400">4,320 XP</div>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 bg-blue-50 rounded-lg px-3 py-2 border border-blue-200">
-          <span className="font-bold text-blue-500 text-base w-5 text-center">7</span>
-          <img src="/profile.png" alt="Ahmad Rizki" className="w-8 h-8 rounded-full object-cover" />
-          <div className="flex-1">
-            <div className="font-semibold text-[#2563eb] text-sm">Ahmad Rizki (You)</div>
-            <div className="text-xs text-gray-400">2,450 XP</div>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 px-3 py-2">
-          <span className="font-bold text-gray-400 text-base w-5 text-center">8</span>
-          <img src="/profile.png" alt="Lisa Park" className="w-8 h-8 rounded-full object-cover" />
-          <div className="flex-1">
-            <div className="font-semibold text-gray-900 text-sm">Lisa Park</div>
-            <div className="text-xs text-gray-400">2,380 XP</div>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 px-3 py-2">
-          <span className="font-bold text-gray-400 text-base w-5 text-center">9</span>
-          <img src="/profile.png" alt="David Kim" className="w-8 h-8 rounded-full object-cover" />
-          <div className="flex-1">
-            <div className="font-semibold text-gray-900 text-sm">David Kim</div>
-            <div className="text-xs text-gray-400">2,200 XP</div>
-          </div>
-        </div>
+        ))}
       </div>
-      <button className="w-full mt-6 py-2 rounded-md bg-[#2563eb] text-white font-semibold text-base shadow hover:bg-[#1e40af] transition">
-        View Full Leaderboard
-      </button>
+      <button className="w-full mt-6 py-2 rounded-md bg-[#2563eb] text-white font-semibold text-base shadow hover:bg-[#1e40af] transition" onClick={()=>router.push("/leaderboard")}>View Full Leaderboard</button>
     </div>
   );
 }

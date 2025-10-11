@@ -1,6 +1,8 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.gilanghuda.my.id";
 
 interface QuizDetail {
   id: string;
@@ -33,6 +35,7 @@ function getDifficultyLabel(difficulty: string) {
 
 export default function QuizDetailSection({ quiz }: { quiz: QuizDetail }) {
   const router = useRouter();
+  const [showPdf, setShowPdf] = useState(false);
   useEffect(() => {
     if (!quiz) {
       console.log("[CLIENT COMPONENT] Quiz detail section: quiz is null or undefined");
@@ -40,6 +43,8 @@ export default function QuizDetailSection({ quiz }: { quiz: QuizDetail }) {
       console.log("[CLIENT COMPONENT] Quiz detail section: quiz data", quiz);
     }
   }, [quiz]);
+
+  const pdfUrl = `${API_BASE_URL}/files/${quiz.id}`;
 
   if (!quiz) {
     return <div className="text-center py-12 text-[#2563eb] font-semibold text-lg">Quiz tidak ditemukan.</div>;
@@ -97,8 +102,8 @@ export default function QuizDetailSection({ quiz }: { quiz: QuizDetail }) {
         <button className="bg-[#2563eb] text-white font-semibold px-6 py-2 rounded-lg shadow hover:bg-[#174bbd] transition flex-1 flex items-center justify-center gap-2" onClick={handleStartQuiz}>
           Mulai Quiz
         </button>
-        <button className="bg-gray-100 text-gray-700 font-semibold px-6 py-2 rounded-lg shadow flex-1">&larr; Kembali</button>
-        <button className="bg-gray-100 text-gray-700 font-semibold px-6 py-2 rounded-lg shadow flex-1">Lihat Materi</button>
+        <button className="bg-gray-100 text-gray-700 font-semibold px-6 py-2 rounded-lg shadow flex-1" onClick={() => router.back()}>&larr; Kembali</button>
+        <button className="bg-gray-100 text-gray-700 font-semibold px-6 py-2 rounded-lg shadow flex-1" onClick={() => setShowPdf(true)}>Lihat Materi</button>
       </div>
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-2">
         <div className="font-bold text-yellow-700 mb-2 flex items-center gap-2">
@@ -111,6 +116,15 @@ export default function QuizDetailSection({ quiz }: { quiz: QuizDetail }) {
           <li>Pastikan koneksi internet stabil selama mengerjakan</li>
         </ul>
       </div>
+      {showPdf && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl p-6 relative flex flex-col">
+            <button className="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-xl" onClick={() => setShowPdf(false)} aria-label="Tutup">✕</button>
+            <h2 className="font-bold text-lg text-gray-900 mb-4">Materi PDF Quiz</h2>
+            <iframe src={pdfUrl} width="100%" height="600px" className="rounded border" />
+          </div>
+        </div>
+      )}
     </section>
   );
 }

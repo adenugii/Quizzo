@@ -1,25 +1,24 @@
+// app/group-detail/page.tsx
+
 import Footer from "@/components/common/Footer";
 import GroupDetailLayout from "@/components/group-detail/GroupDetailLayout";
-import { getGroupById } from "@/services/groupservices";
+import { getGroupDetail } from "@/services/groupservices";
 import { cookies } from "next/headers";
 
 export default async function GroupDetailPage({ searchParams }: { searchParams: { id: string } }) {
-  const { id: groupId } = await searchParams;
-  const cookieStore = cookies();
-  const token = (await cookieStore).get("token")?.value || "";
+  const { id: groupId } = searchParams;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
 
-  // Debug: cek id dan token
-  console.log("GroupDetailPage id:", groupId, "token:", token);
-
-  const groupRes = groupId ? await getGroupById(groupId, token) : null;
-  const groupData = groupRes?.study_group || null;
-
-  // Debug: cek data yang didapat dari API
-  console.log("Group detail API response:", groupRes);
+  const groupRes = (groupId && token) ? await getGroupDetail(groupId, token) : null;
+  
+  // PERBAIKAN: Data grup ada di dalam properti 'detail', bukan 'study_group'.
+  const groupData = groupRes?.detail || null;
 
   return (
     <div className="min-h-screen bg-[#fafbfc]">
-      <GroupDetailLayout group={groupData} />
+      {/* Sekarang 'groupData' berisi objek { group, members, leaderboard } */}
+      <GroupDetailLayout groupDetail={groupData} token={token} />
       <Footer />
     </div>
   );

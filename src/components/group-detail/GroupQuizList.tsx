@@ -1,135 +1,61 @@
 import { FaRegChartBar, FaRegClock, FaUserFriends, FaStar, FaRegEye, FaRegPlayCircle } from "react-icons/fa";
+import Link from "next/link";
 
 export interface GroupQuizListProps {
-  quizzes: {
+  quizzes: Array<{
+    id: string;
     title: string;
-    desc: string;
-    avatar: string;
-    questions: number;
-    time: number;
-    done: number;
-    total: number;
-    status?: string;
-    score?: string;
-    progress?: number;
-    badge?: string;
-  }[];
-  onShowResult: (quiz: {
-    title: string;
-    desc: string;
-    avatar: string;
-    questions: number;
-    time: number;
-    done: number;
-    total: number;
-    status?: string;
-    score?: string;
-    progress?: number;
-    badge?: string;
-  }) => void;
+    description: string;
+    difficulty: string;
+    time_limit?: { Int64: number; Valid: boolean };
+    created_by: string;
+    total_questions: number;
+    created_at: string;
+  }>;
+  token?: string;
+  groupId?: string;
+  showAll?: boolean;
 }
 
-export default function GroupQuizList({ quizzes, onShowResult }: GroupQuizListProps) {
+export default function GroupQuizList({ quizzes, token, groupId, showAll = false }: GroupQuizListProps) {
+  if (!quizzes || quizzes.length === 0) {
+    return (
+      <div className="text-center text-gray-500 py-12">
+        Belum ada quiz di grup ini.
+      </div>
+    );
+  }
+  // Sort by created_at desc
+  const sortedQuiz = [...quizzes].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  const displayQuiz = showAll ? sortedQuiz : sortedQuiz.slice(0, 3);
   return (
     <section className="mb-8">
-      <h3 className="font-bold text-lg text-gray-900 mb-4">Daftar Quiz</h3>
-      <div className="flex flex-col gap-4">
-        {quizzes.map((quiz, idx) => (
-          <div key={quiz.title + idx} className="bg-white rounded-xl shadow-sm p-5 flex flex-col md:flex-row items-center md:items-start gap-4">
-            {/* Info Quiz */}
-            <div className="flex-1 flex items-center gap-4">
-              <img
-                src={quiz.avatar}
-                alt={quiz.title}
-                className="w-10 h-10 rounded-full object-cover"
-              />
-              <div>
-                <div className="font-semibold text-gray-900 text-base">
-                  {quiz.title}
-                </div>
-                <div className="text-xs text-gray-400 mb-1">{quiz.desc}</div>
-                <div className="flex items-center gap-4 text-xs text-gray-500 mb-1">
-                  <span className="flex items-center gap-1">
-                    <FaRegChartBar /> {quiz.questions} soal
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <FaRegClock /> {quiz.time} menit
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <FaUserFriends /> {quiz.done}/{quiz.total} selesai
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 mt-1">
-                  {quiz.status === "done" && (
-                    <span className="bg-green-100 text-green-600 text-xs font-semibold px-3 py-1 rounded-full">
-                      Selesai - {quiz.score}
-                    </span>
-                  )}
-                  {quiz.status === "not_started" && (
-                    <span className="bg-red-100 text-red-500 text-xs font-semibold px-3 py-1 rounded-full">
-                      Belum Dikerjakan
-                    </span>
-                  )}
-                  {quiz.status === "in_progress" && (
-                    <span className="bg-blue-100 text-blue-500 text-xs font-semibold px-3 py-1 rounded-full">
-                      Selesai - {quiz.score}
-                    </span>
-                  )}
-                  {quiz.badge && (
-                    <span className="flex items-center gap-1 text-xs text-yellow-500 font-semibold">
-                      <FaStar /> {quiz.badge}
-                    </span>
-                  )}
-                </div>
-              </div>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-lg text-gray-900">Daftar Quiz Grup</h3>
+        {!showAll && groupId && quizzes.length > 3 && (
+          <Link href={`/group-detail/quiz-group?id=${groupId}`} className="text-sm text-[#2563eb] hover:underline font-medium">
+            Lihat Semua
+          </Link>
+        )}
+      </div>
+      <div className="grid md:grid-cols-2 gap-6">
+        {displayQuiz.map((quiz) => (
+          <div key={quiz.id} className={`bg-white rounded-xl shadow-sm p-5 flex flex-col gap-3 border-t-4 ${quiz.difficulty === "easy" ? "border-green-400" : quiz.difficulty === "medium" ? "border-yellow-400" : quiz.difficulty === "hard" ? "border-red-400" : "border-gray-400"}`}>
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded ${quiz.difficulty === "easy" ? "bg-green-100 text-green-600" : quiz.difficulty === "medium" ? "bg-yellow-100 text-yellow-700" : quiz.difficulty === "hard" ? "bg-red-100 text-red-600" : "bg-gray-100 text-gray-600"}`}>{quiz.difficulty}</span>
+              <span className="text-xs text-gray-400 ml-auto">Uploaded {new Date(quiz.created_at).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })}</span>
             </div>
-            {/* Action */}
-            <div className="flex flex-col items-end gap-2 min-w-[140px]">
-              {quiz.status === "done" && (
-                <button
-                  onClick={() => onShowResult(quiz)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-500 font-semibold text-sm shadow border border-gray-200 cursor-pointer"
-                >
-                  <FaRegEye />
-                  Lihat Hasil
-                </button>
-              )}
-              {quiz.status === "not_started" && (
-                <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-500 text-white font-semibold text-sm shadow hover:bg-violet-600 transition">
-                  <FaRegPlayCircle />
-                  Kerjakan Quiz
-                </button>
-              )}
-              {quiz.status === "in_progress" && (
-                <button
-                  onClick={() => onShowResult(quiz)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-500 font-semibold text-sm shadow border border-gray-200 cursor-pointer"
-                >
-                  <FaRegEye />
-                  Lihat Hasil
-                </button>
-              )}
-              <div className="w-full h-1 bg-gray-200 rounded-full mt-2">
-                <div
-                  className={`h-1 rounded-full ${
-                    quiz.progress && quiz.progress >= 80
-                      ? "bg-green-500"
-                      : quiz.progress && quiz.progress >= 50
-                      ? "bg-blue-500"
-                      : "bg-violet-500"
-                  }`}
-                  style={{ width: `${quiz.progress}%` }}
-                />
-              </div>
-              <span className="text-xs text-gray-400 mt-1">
-                {quiz.progress}% grup selesai
-              </span>
+            <h3 className="font-semibold text-gray-900 text-base truncate" style={{maxWidth: '100%'}}>{quiz.title}</h3>
+            <p className="text-sm text-gray-500">{quiz.description}</p>
+            <div className="flex items-center justify-between mt-2">
+              <span className="text-xs text-gray-500">{quiz.total_questions ?? 0} soal</span>
+              <Link href={`/quiz-maker/${quiz.id}`}>
+                <button className="bg-[#2563eb] text-white text-sm font-medium px-4 py-1.5 rounded shadow hover:bg-[#1e40af] transition">Mulai Quiz</button>
+              </Link>
             </div>
           </div>
         ))}
       </div>
     </section>
   );
-  // Contoh pemakaian tombol lihat hasil:
-  // <button onClick={() => onShowResult(quiz)}>Lihat Hasil</button>
 }

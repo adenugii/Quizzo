@@ -1,14 +1,43 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { FaStar, FaPlus } from "react-icons/fa";
+import { FaStar, FaPlus, FaRegCopy } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { getUserById } from "@/services/userservices";
 
 interface GroupHeaderProps {
-  group: any;
+  group: {
+    name: string;
+    description: string;
+    invite_code: string;
+    member_count: number;
+    max_member: number;
+    created_by: string;
+  };
+  token?: string;
   onAddQuiz: () => void;
   tab: string;
   setTab: (tab: "quiz" | "anggota") => void;
 }
 
-export default function GroupHeader({ group, onAddQuiz, tab, setTab }: GroupHeaderProps) {
+export default function GroupHeader({ group, token, onAddQuiz, tab, setTab }: GroupHeaderProps) {
+  const [copied, setCopied] = useState(false);
+  const [owner, setOwner] = useState<{ username?: string; image_url?: { String: string; Valid: boolean } } | null>(null);
+
+  useEffect(() => {
+    async function fetchOwner() {
+      if (group.created_by) {
+        const user = await getUserById(group.created_by, token);
+        setOwner(user);
+      }
+    }
+    fetchOwner();
+  }, [group.created_by, token]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(group.invite_code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
+  };
+
   return (
     <div className="w-full bg-white shadow-sm">
       <div className="max-w-4xl mx-auto flex items-center justify-between px-8 py-6">
@@ -21,11 +50,24 @@ export default function GroupHeader({ group, onAddQuiz, tab, setTab }: GroupHead
               {group?.name || "Study Squad"}
             </div>
             <div className="text-gray-500 text-sm mt-0.5">
-              {group?.member_count ?? 0} anggota aktif
+              {group?.member_count ?? 0} / {group?.max_member ?? 0} anggota aktif
             </div>
             <div className="text-gray-400 text-xs mt-1">
               {group?.description}
             </div>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-xs font-semibold text-violet-600 bg-violet-50 px-2 py-1 rounded">Invite Code: {group.invite_code}</span>
+              <button onClick={handleCopy} className="text-violet-500 hover:text-violet-700 text-base" title="Copy invite code">
+                <FaRegCopy />
+              </button>
+              {copied && <span className="text-green-500 text-xs ml-2">Copied!</span>}
+            </div>
+            {owner && (
+              <div className="flex items-center gap-2 mt-2">
+                <img src={owner.image_url?.Valid ? owner.image_url.String : "/profile.png"} alt={owner.username || "Owner"} className="w-6 h-6 rounded-full object-cover" />
+                <span className="text-xs text-gray-700">Owner: {owner.username || '-'}</span>
+              </div>
+            )}
           </div>
         </div>
         <button

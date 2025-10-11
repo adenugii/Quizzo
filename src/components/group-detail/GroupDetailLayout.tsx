@@ -8,12 +8,44 @@ import GroupQuizList from "./GroupQuizList";
 import GroupTopPerformers from "./GroupTopPerformers";
 import GroupMembers from "./GroupMembers";
 import QuizResultModal from "./QuizResultModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getGroupQuizzes } from "@/services/groupservices";
+import { getMyQuiz } from "@/services/quizservices";
 
-export default function GroupDetailLayout({ group }: { group: any }) {
-  // Debug: cek data group yang diterima
-  console.log("GroupDetailLayout group prop:", group);
+// Menerima prop 'groupDetail' yang strukturnya sesuai dengan respons API
+export default function GroupDetailLayout({ groupDetail, token }: { groupDetail: any; token?: string }) {
+  // 1. Ekstrak data dari prop dengan fallback untuk mencegah error jika data null
+  const group = groupDetail?.group ?? {};
+  const apiMembers = groupDetail?.members ?? [];
+  const apiLeaderboard = groupDetail?.leaderboard ?? [];
+  const quizzes = groupDetail?.quizzes ?? []; // Asumsi quizzes ada di sini
 
+  // 2. Lakukan pemetaan data anggota (API -> Komponen)
+  const mappedMembers = apiMembers.map((member: any) => {
+    const leaderboardInfo = apiLeaderboard.find((p: any) => p.user_id === member.user_id);
+    return {
+      name: member.username,
+      avatar: member.image_url.Valid 
+        ? member.image_url.String 
+        : `https://ui-avatars.com/api/?name=${member.username.replace(/\s/g, '+')}&background=random`,
+      role: member.user_id === group.created_by ? "Leader" : "Anggota",
+      xp: leaderboardInfo?.total_score ?? 0,
+      quizDone: 0, // API tidak menyediakan data ini, jadi kita beri nilai default
+    };
+  });
+
+  // 3. Lakukan pemetaan data top performers (leaderboard)
+  const mappedTopPerformers = apiLeaderboard.map((performer: any, idx: number) => ({
+    name: performer.username,
+    avatar: performer.image_url.Valid 
+      ? performer.image_url.String 
+      : `https://ui-avatars.com/api/?name=${performer.username.replace(/\s/g, '+')}&background=random`,
+    xp: performer.total_score,
+    rank: idx + 1,
+    quizDone: 0, // API tidak menyediakan data ini, jadi kita beri nilai default
+  }));
+
+  // Sisa state dan handler dari kode asli Anda
   const [tab, setTab] = useState<"quiz" | "anggota">("quiz");
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
@@ -26,24 +58,42 @@ export default function GroupDetailLayout({ group }: { group: any }) {
   const [preview, setPreview] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [resultData, setResultData] = useState<any>(undefined);
+  const [groupQuizzes, setGroupQuizzes] = useState<any[]>([]);
+  const [myQuizzes, setMyQuizzes] = useState<any[]>([]);
 
-  // Data dari API, fallback ke array kosong jika belum ada
-  const members = group?.members ?? [];
-  const quizzes = group?.quizzes ?? [];
-  const topPerformers = group?.topPerformers ?? [];
+  useEffect(() => {
+    async function fetchGroupQuizzes() {
+      if (group?.id && token) {
+        try {
+          const quizzes = await getGroupQuizzes(group.id, token);
+          setGroupQuizzes(quizzes);
+        } catch {}
+      }
+    }
+    fetchGroupQuizzes();
+  }, [group?.id, token]);
 
-  // Progress dari API
+  useEffect(() => {
+    async function fetchMyQuizzes() {
+      if (showModal && token) {
+        try {
+          const quizzes = await getMyQuiz(token);
+          setMyQuizzes(quizzes || []);
+        } catch {}
+      }
+    }
+    fetchMyQuizzes();
+  }, [showModal, token]);
+
+  // Kalkulasi progress menggunakan data yang sudah dipetakan
   const progress = {
-    totalQuiz: quizzes.length,
+    totalQuiz: groupQuizzes.length,
     activeMembers: group?.member_count ?? 0,
     maxMembers: group?.max_member ?? 0,
-    totalXP: members.reduce((acc: number, m: { xp?: number }) => acc + (m.xp ?? 0), 0),
+    totalXP: mappedTopPerformers.reduce((acc: number, p: { xp: number }) => acc + p.xp, 0),
   };
 
-  // Handler untuk form tambah quiz
-  const handleFormChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
       setForm((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
@@ -51,7 +101,6 @@ export default function GroupDetailLayout({ group }: { group: any }) {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
   };
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -59,32 +108,27 @@ export default function GroupDetailLayout({ group }: { group: any }) {
       setPreview(URL.createObjectURL(file));
     }
   };
-
-  const handleTogglePublic = () => {
-    setForm((prev) => ({ ...prev, isPublic: !prev.isPublic }));
-  };
-
+  const handleTogglePublic = () => setForm((prev) => ({ ...prev, isPublic: !prev.isPublic }));
   const handleShowResult = (result: any) => {
     setResultData(result);
     setShowResult(true);
   };
-
-  const fallbackResult = {
-    title: "",
-    score: 0,
-    total: 0,
-    xp: 0,
-    badge: "",
-    correct: 0,
-    wrong: 0,
-    time: "",
-    details: [],
+  const handleRefreshGroupQuizzes = async () => {
+    if (group?.id && token) {
+      try {
+        const quizzes = await getGroupQuizzes(group.id, token);
+        setGroupQuizzes(quizzes);
+      } catch {}
+    }
   };
+  const fallbackResult = { /* ... */ };
 
   return (
     <div>
+      {/* Teruskan data yang sudah diekstrak dan dipetakan ke komponen anak */}
       <GroupHeader
         group={group}
+        token={token}
         onAddQuiz={() => setShowModal(true)}
         tab={tab}
         setTab={setTab}
@@ -93,24 +137,24 @@ export default function GroupDetailLayout({ group }: { group: any }) {
         <GroupQuizModal
           show={showModal}
           onClose={() => setShowModal(false)}
-          form={form}
-          preview={preview}
-          onFormChange={handleFormChange}
-          onImageChange={handleImageChange}
-          onTogglePublic={handleTogglePublic}
+          quizzes={myQuizzes}
+          loading={false}
+          selectedQuizId={null}
+          onSelectQuiz={() => {}}
+          onSubmit={() => {}}
+          groupId={group?.id}
+          token={token}
+          onRefresh={handleRefreshGroupQuizzes}
         />
         {tab === "quiz" && (
           <>
             <GroupProgress progress={progress} />
-            <GroupQuizList
-              quizzes={quizzes}
-              onShowResult={handleShowResult}
-            />
-            <GroupTopPerformers topPerformers={topPerformers} />
+            <GroupQuizList quizzes={groupQuizzes} token={token} groupId={group?.id} />
+            <GroupTopPerformers topPerformers={mappedTopPerformers} />
           </>
         )}
         {tab === "anggota" && (
-          <GroupMembers members={members} />
+          <GroupMembers members={mappedMembers} />
         )}
         <QuizResultModal
           show={showResult}

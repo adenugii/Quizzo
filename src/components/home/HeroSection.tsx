@@ -18,7 +18,7 @@ export default function HeroSection() {
             yang menyenangkan.
           </p>
           <a
-            href="#"
+            href="/login"
             className="inline-flex items-center gap-2 bg-[#2563eb] text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-[#1d4ed8] transition drop-shadow-lg"
           >
             <span>

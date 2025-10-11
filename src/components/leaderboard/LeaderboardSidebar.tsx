@@ -1,6 +1,6 @@
 import { FaTrophy, FaFire, FaStar, FaBolt } from "react-icons/fa";
 
-export default function LeaderboardSidebar() {
+export default function LeaderboardSidebar({ leaderboardData, groupLeaderboardData }: { leaderboardData: { leaderboard: any[] }, groupLeaderboardData: { leaderboard: any[] } }) {
   return (
     <aside className="w-full md:w-[300px] flex-shrink-0 flex flex-col gap-4">
       <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col items-center mb-2">
