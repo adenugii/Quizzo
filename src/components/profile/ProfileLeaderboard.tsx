@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { MdLeaderboard } from "react-icons/md";
 import { getUserLeaderboard } from "@/services/leaderboardservices";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function ProfileLeaderboard() {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
@@ -28,7 +29,7 @@ export default function ProfileLeaderboard() {
         {leaderboard.map((u, i) => (
           <div key={i} className={`flex items-center gap-3 ${i===0 ? 'bg-yellow-50' : i===2 ? 'bg-blue-50 border border-blue-200' : ''} rounded-lg px-3 py-2`}>
             <span className={`font-bold text-base w-5 text-center ${i===0 ? 'text-yellow-500' : i===2 ? 'text-blue-500' : 'text-gray-400'}`}>{u.rank || i+1}</span>
-            <img src={u.image_url || "/profile.png"} alt={u.username || u.name} className="w-8 h-8 rounded-full object-cover" />
+            <Image src={u.image_url || "/profile.png"} alt={u.username || u.name} width={32} height={32} className="rounded-full object-cover" />
             <div className="flex-1">
               <div className={`font-semibold text-sm ${i===2 ? 'text-[#2563eb]' : 'text-gray-900'}`}>{u.username || u.name}{i===2 ? ' (You)' : ''}</div>
               <div className="text-xs text-gray-400">{u.xp || u.total_score} XP</div>

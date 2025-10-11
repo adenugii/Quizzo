@@ -10,7 +10,7 @@ export default async function QuizResultAttemptPage({ params }: { params: { idAt
   try {
     resultData = await getDetailAttempt(params.idAttempt, token);
   } catch (e) {
-    error = (e instanceof Error) ? e.message : "Gagal mengambil hasil quiz";
+    error = (e instanceof Error) ? e.message : "menunggu hasil quiz";
   }
   return <QuizResultPageClient resultData={resultData} error={error} />;
 }

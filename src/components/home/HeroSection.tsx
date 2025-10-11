@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function HeroSection() {
   return (
@@ -17,7 +18,7 @@ export default function HeroSection() {
             materi pembelajaran menjadi quiz interaktif dengan sistem gamifikasi
             yang menyenangkan.
           </p>
-          <a
+          <Link
             href="/login"
             className="inline-flex items-center gap-2 bg-[#2563eb] text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-[#1d4ed8] transition drop-shadow-lg"
           >
@@ -27,7 +28,7 @@ export default function HeroSection() {
               </svg> */}
             </span>
             Mulai Sekarang
-          </a>
+          </Link>
         </div>
         <div className="flex-1 flex justify-center">
           <Image

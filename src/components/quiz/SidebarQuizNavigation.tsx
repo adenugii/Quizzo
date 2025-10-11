@@ -1,3 +1,5 @@
+import CountdownTimer from "./CountdownTimer";
+
 export default function SidebarQuizNavigation({
   questions,
   answers,
@@ -17,8 +19,6 @@ export default function SidebarQuizNavigation({
   timeLimitSeconds: number;
   onTimeUp: () => void;
 }) {
-  // Import CountdownTimer di sini agar tidak circular
-  const CountdownTimer = require("./CountdownTimer").default;
   return (
     <aside className="w-full md:w-64 mb-8 md:mb-0 md:mr-8 flex flex-col gap-6">
       <div className="bg-white rounded-xl shadow-sm p-4 flex flex-col items-center">

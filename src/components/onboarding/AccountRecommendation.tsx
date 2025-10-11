@@ -1,4 +1,4 @@
-/* eslint-disable prefer-const */
+ 
 "use client";
 import { useState, useMemo } from "react";
 import Image from "next/image";

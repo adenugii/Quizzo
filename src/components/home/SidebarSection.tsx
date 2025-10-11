@@ -4,6 +4,7 @@ import { getUserRecommendations, followUser } from "@/services/userservices";
 import { getUserLeaderboard, getGroupLeaderboard } from "@/services/leaderboardservices";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 
 const DUMMY_TRENDING = [
   { title: "React Hooks Deep Dive", attempts: 1234 },
@@ -18,14 +19,26 @@ interface RecommendationUser {
   image_url?: string;
   follower_count?: number;
 }
+interface LeaderboardUser {
+  username: string;
+  xp: number;
+  image_url?: string;
+  rank?: number;
+}
+interface LeaderboardGroup {
+  name: string;
+  xp: number;
+  group_name?: string;
+  total_score?: number;
+}
 
 export default function SidebarSection({ token }: { token: string }) {
   const router = useRouter();
   const [rekomendasi, setRekomendasi] = useState<RecommendationUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingFollow, setLoadingFollow] = useState<string | null>(null);
-  const [globalLeaderboard, setGlobalLeaderboard] = useState<any[]>([]);
-  const [groupLeaderboard, setGroupLeaderboard] = useState<any[]>([]);
+  const [globalLeaderboard, setGlobalLeaderboard] = useState<LeaderboardUser[]>([]);
+  const [groupLeaderboard, setGroupLeaderboard] = useState<LeaderboardGroup[]>([]);
 
   useEffect(() => {
     if (!token) return;
@@ -108,8 +121,8 @@ export default function SidebarSection({ token }: { token: string }) {
         <div className="flex flex-col gap-2">
           {globalLeaderboard.map((u, i) => (
             <div key={i} className={`flex items-center justify-between text-sm ${i===0 ? 'font-bold text-yellow-500' : ''}`}>
-              <span>{u.username || u.name}</span>
-              <span>{u.xp || u.total_score} XP</span>
+              <span>{u.username }</span>
+              <span>{u.xp } XP</span>
             </div>
           ))}
         </div>

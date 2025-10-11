@@ -1,13 +1,24 @@
 // src/components/group-detail/GroupQuizModal.tsx
 
-import { FaTimes, FaCheckCircle } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 import { assignQuizToStudyGroup } from "@/services/groupservices";
 import { useState } from "react";
+
+interface GroupQuiz {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: string;
+  time_limit?: { Int64: number; Valid: boolean };
+  created_by: string;
+  total_questions: number;
+  created_at: string;
+}
 
 interface GroupQuizModalProps {
   show: boolean;
   onClose: () => void;
-  quizzes: any[];
+  quizzes: GroupQuiz[];
   loading: boolean;
   selectedQuizId: string | null;
   onSelectQuiz: (quizId: string) => void;

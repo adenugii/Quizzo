@@ -26,7 +26,7 @@ export default async function UploadPage() {
         </div>
 
         {/* Grid utama: Form upload & Tips + Materi Saya (Client) */}
-        <QuizMakerClientWrapper token={token} quizId={""} />
+        <QuizMakerClientWrapper token={token} />
       </main>
 
       <Footer />

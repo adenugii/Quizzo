@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { FaStar, FaPlus, FaRegCopy } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { getUserById } from "@/services/userservices";

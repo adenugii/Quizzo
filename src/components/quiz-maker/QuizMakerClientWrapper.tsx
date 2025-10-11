@@ -6,23 +6,29 @@ import MateriSayaSection from "@/components/quiz-maker/MateriSayaSection";
 import { getMyQuiz } from "@/services/quizservices";
 
 interface QuizMakerClientWrapperProps {
-  quizId: string;
   token: string;
 }
 
-export default function QuizMakerClientWrapper({ quizId, token }: QuizMakerClientWrapperProps) {
-  const [quiz, setQuiz] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+export type QuizType = {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: string;
+  time_limit?: { String: string; Valid: boolean };
+  created_by: string;
+  questions: { id: string; quiz_id: string; question_text: string; options: { id: string; content: string }[] }[];
+  created_at: string;
+};
+
+export default function QuizMakerClientWrapper({ token }: QuizMakerClientWrapperProps) {
+  const [quiz, setQuiz] = useState<QuizType[]>([]);
 
   const fetchQuiz = async () => {
-    setLoading(true);
     try {
       const response = await getMyQuiz(token);
       setQuiz(Array.isArray(response) ? response : response?.quiz || []);
     } catch {
       setQuiz([]);
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -149,7 +149,7 @@ export default function UploadFormSection({ token, onUploadSuccess }: { token: s
             Drag & drop file atau klik untuk upload
           </span>
           <span className="text-xs text-gray-400 mb-3">
-            Mendukung PDF, DOCX (Maks. 10MB)
+            Mendukung PDF (Maks. 10MB)
           </span>
           <input
             id="file-upload"

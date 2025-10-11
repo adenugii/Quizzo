@@ -49,8 +49,6 @@ export default function QuizSoalClient({ quizId, soalId, token }: { quizId: stri
   const [selected, setSelected] = useState<number>(-1);
   const [timeUp, setTimeUp] = useState(false);
   const [marked, setMarked] = useState<boolean[]>([]);
-  // Tambahkan state untuk sisa waktu
-  const [timerLeft, setTimerLeft] = useState<number | null>(null);
 
   useEffect(() => {
     // Ambil answers dari localStorage jika ada
@@ -124,9 +122,6 @@ export default function QuizSoalClient({ quizId, soalId, token }: { quizId: stri
   const total = quiz.questions.length;
   const question = quiz.questions[current];
 
-  // Progress bar: mulai dari 0% di soal pertama, 90% di soal terakhir
-  const progress = Math.floor((current / total) * 100);
-
   // Navigasi soal
   const handlePrev = () => {
     if (current > 0) {
@@ -166,9 +161,9 @@ export default function QuizSoalClient({ quizId, soalId, token }: { quizId: stri
         return;
       }
       // Fallback: jika tidak ada id attempt, tampilkan error
-      setResult({ error: "Gagal mendapatkan hasil attempt quiz" });
+    
     } catch {
-      setResult({ error: "Gagal submit atau mengambil hasil quiz" });
+     
     }
   };
 
@@ -220,7 +215,6 @@ export default function QuizSoalClient({ quizId, soalId, token }: { quizId: stri
   const handleTimeUp = () => {
     setTimeUp(true);
     setShowResult(true);
-    setTimerLeft(0);
     handleSubmit(true);
   };
 
@@ -265,7 +259,6 @@ export default function QuizSoalClient({ quizId, soalId, token }: { quizId: stri
           quizId={quizId}
           timeLimitSeconds={timeLimitSeconds}
           onTimeUp={() => {
-            setTimerLeft(0);
             handleTimeUp();
           }}
         />

@@ -1,4 +1,4 @@
-/* eslint-disable prefer-const */
+ 
 "use client";
 import { useRef, useEffect, useState } from "react";
 import { FaLightbulb, FaCode, FaRocket, FaStar } from "react-icons/fa";
