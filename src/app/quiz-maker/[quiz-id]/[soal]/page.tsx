@@ -1,10 +1,9 @@
-import QuizSoalClient from "@/components/quiz/QuizSoalClient";
 import { cookies } from "next/headers";
+import QuizSoalClient from "@/components/quiz/QuizSoalClient";
 
-export default async function QuizSoalPageServer({ params }: { params: { "quiz-id": string; soal: string } }) {
-  const cookieStore = cookies();
-  const token = (await cookieStore).get("token")?.value || "";
-  const quizId = params["quiz-id"];
-  const soalId = params["soal"];
-  return <QuizSoalClient quizId={quizId} soalId={soalId} token={token} />;
+export default async function QuizSoalPage({ params }: { params: Promise<{ "quiz-id": string; soal: string }> }) {
+  const { "quiz-id": quizId, soal } = await params;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value || "";
+  return <QuizSoalClient quizId={quizId} soalId={soal} token={token} />;
 }

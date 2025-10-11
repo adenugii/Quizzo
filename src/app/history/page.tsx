@@ -74,9 +74,12 @@ async function QuizHistorySection() {
                 </div>
                 <div className="text-gray-400 text-xs mb-1">{new Date(q.submitted_at).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })}</div>
                 <div className="font-bold text-lg mb-2 text-[#3b82f6]">{q.score}/{q.total_questions}</div>
-                <button className={`w-full rounded-lg py-2 text-white font-semibold bg-[#3b82f6] mt-auto`}>
+                <a
+                  href={`/quiz-result/${q.id}`}
+                  className={`w-full rounded-lg py-2 text-white font-semibold bg-[#3b82f6] mt-auto text-center block`}
+                >
                   View Details
-                </button>
+                </a>
               </div>
             );
           });

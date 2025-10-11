@@ -4,7 +4,7 @@ import { FaCloudUploadAlt } from "react-icons/fa";
 import { uploadQuiz } from "@/services/quizservices";
 import Cookies from "js-cookie";
 
-export default function UploadFormSection({ token }: { token: string }) {
+export default function UploadFormSection({ token, onUploadSuccess }: { token: string, onUploadSuccess?: () => void }) {
   const [difficulty, setDifficulty] = useState<string>("");
   const [numQuestions, setNumQuestions] = useState<number | "">("");
   const [file, setFile] = useState<File | null>(null);
@@ -12,6 +12,8 @@ export default function UploadFormSection({ token }: { token: string }) {
   const [localError, setLocalError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [timeLimitType, setTimeLimitType] = useState<string>("15"); // "15", "30", "custom"
+  const [customTime, setCustomTime] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,22 +55,24 @@ export default function UploadFormSection({ token }: { token: string }) {
     setLocalError(null);
     try {
       const token = Cookies.get("token") || "";
+      let time_limit = 15 * 60; // default 15 menit
+      if (timeLimitType === "15") time_limit = 15 * 60;
+      else if (timeLimitType === "30") time_limit = 30 * 60;
+      else if (timeLimitType === "custom" && customTime) time_limit = Number(customTime) * 60;
       await uploadQuiz({
         file,
         num_questions: Number(numQuestions),
         difficulty,
         description,
-        token
-        
+        token,
+        time_limit: time_limit // kirim sebagai number (detik)
       });
       setSuccess(true);
+      if (onUploadSuccess) onUploadSuccess();
     } catch (err: unknown) {
       setLocalError((err as Error).message || "Gagal upload quiz");
     } finally {
       setLoading(false);
-      if (success) {
-        window.location.reload();
-      }
     }
   };
 
@@ -105,6 +109,34 @@ export default function UploadFormSection({ token }: { token: string }) {
             className="w-24 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
             placeholder="1-20"
           />
+        </div>
+        <div className="mb-6">
+          <label className="block font-semibold mb-2">Waktu Pengerjaan</label>
+          <div className="flex gap-4 items-center">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="time_limit" value="15" checked={timeLimitType === "15"} onChange={() => setTimeLimitType("15")} className="accent-[#2563eb]" />
+              <span>15 menit</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="time_limit" value="30" checked={timeLimitType === "30"} onChange={() => setTimeLimitType("30")} className="accent-[#2563eb]" />
+              <span>30 menit</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="time_limit" value="custom" checked={timeLimitType === "custom"} onChange={() => setTimeLimitType("custom")} className="accent-[#2563eb]" />
+              
+              <input
+                type="number"
+                min={1}
+                max={120}
+                value={timeLimitType === "custom" ? customTime : ""}
+                onChange={e => setCustomTime(e.target.value)}
+                className="w-16 border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] ml-2"
+                placeholder="..."
+                disabled={timeLimitType !== "custom"}
+              />
+              <span>menit</span>
+            </label>
+          </div>
         </div>
         <label
           htmlFor="file-upload"

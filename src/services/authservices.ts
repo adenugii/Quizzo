@@ -60,6 +60,31 @@ export async function signin({
   return data;
 }
 
+export async function signInWithGoogle(id_token: string) {
+  const res = await fetch(`${API_BASE_URL}/signin/google`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id_token }),
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data?.message || "Gagal login dengan Google");
+  }
+  // Simpan token di cookie agar tetap ada setelah refresh
+  if (data.token) {
+    Cookies.set("token", data.token, {
+      expires: 7,
+      path: "/",
+      sameSite: "None",
+      secure: process.env.NODE_ENV === "production",
+    });
+  }
+  return data;
+}
+
 export function logout() {
   Cookies.remove("token");
   Cookies.remove("username");

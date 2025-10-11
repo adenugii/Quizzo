@@ -33,13 +33,15 @@ export default function QuizNavigation({
       <div className="flex gap-3 w-full md:w-auto">
         <button
           type="button"
-          className={`flex items-center gap-2 px-6 py-3 rounded-lg border bg-gray-100 text-gray-700 font-semibold text-base transition w-full md:w-auto ${
-            marked ? "border-[#2563eb] bg-blue-50 text-[#2563eb]" : "border-gray-200"
+          className={`flex items-center gap-2 px-6 py-3 rounded-lg border font-semibold text-base transition w-full md:w-auto ${
+            marked
+              ? "border-yellow-400 bg-yellow-200 text-yellow-800 hover:bg-yellow-300 hover:border-yellow-500"
+              : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-blue-50 hover:border-[#2563eb]/60"
           }`}
           onClick={() => setMarked(!marked)}
         >
           <FaRegBookmark />
-          Tandai
+          {marked ? "Batal Tandai" : "Tandai"}
         </button>
         <button
           className={`flex items-center gap-2 px-8 py-3 rounded-lg font-semibold text-base shadow transition w-full md:w-auto

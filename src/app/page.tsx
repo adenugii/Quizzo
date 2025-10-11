@@ -13,6 +13,7 @@ export default async function Home() {
   const cookieStore = cookies();
   const token = (await cookieStore).get("token")?.value || "";
   let user = null;
+
   if (token) {
     user = await getProfile(token);
   }
